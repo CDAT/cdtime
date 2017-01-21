@@ -10,9 +10,7 @@ before_install:
 - conda config --set always_yes yes --set changeps1 no
 - conda update -y -q conda
 - conda install gcc
-script:
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then conda install -c conda-forge -c uvcdat uvcdat-nox pyopenssl; fi
-- if [ "$TRAVIS_OS_NAME" = "osx" ]; then conda install -c conda-forge -c uvcdat uvcdat pyopenssl; fi
+install:
 - export UVCDAT_ANONYMOUS_LOG=False
 #- vcs_download_sample_data
 - echo $TRAVIS_BRANCH
@@ -20,6 +18,8 @@ script:
 - echo $TRAVIS_EVENT_TYPE
 - echo $TRAVIS_PULL_REQUEST
 - python setup.py install
+script:
+- python run_test.py
 env:
   global:
     secure: Z06idl4BP01QMhrocmfuYV4CcbLmb5ZJZoXXymDr5sLIIfqdMiSL/CfDCRkIwl44vKpTN5R9AAhQV6iNMdU0NOQQrftHJyT5YV4y966FuAA1v9ev7y/cgExJFv7M/4E37WAN6YIcO7E42KZReeNKOAodorpqoT87MW6FAImZbrM=
