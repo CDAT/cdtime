@@ -30,6 +30,7 @@
 #include "cdtimemodule.h"
 #include <math.h>
 #include <string.h>
+#include <py3c.h>
 
 #define VALCMP(a,b) ((a)<(b)?-1:(b)<(a)?1:0)
 #define GET_CALENDAR PyLong_AsLong(PyDict_GetItemString(PyCdtime_ModuleDict, "DefaultCalendar"))
@@ -651,11 +652,13 @@ PyCdReltime_Repr(PyCdReltimeObject *self) {
 static PyObject *
 PyCdReltime_Getattro(PyCdReltimeObject *self, PyObject *nameobj) /* on "instance.attr" reference  */
 { /* exposed data-members */
-    if (PyUnicode_CompareWithASCIIString(nameobj, "value") == 0)
+    char *objname;
+    objname = PyStr_AsString(nameobj);
+    if (strcmp(objname, "value") == 0)
         return Py_BuildValue("d", self->value);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "units") == 0)
+    else if (strcmp(objname, "units") == 0)
         return Py_BuildValue("s", self->units);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "__members__") == 0) /* __methods__ is free */
+    else if (strcmp(objname, "__members__") == 0) /* __methods__ is free */
         return Py_BuildValue("[ss]", "value", "units"); /* make a list of 1 string */
     else
         return PyObject_GenericGetAttr((PyObject *) self, nameobj);
@@ -668,8 +671,8 @@ static int PyCdReltime_Setattro(PyCdReltimeObject *self, char *name,
     if (strcmp(name, "value") == 0) {
         return set_double_to_scalar(&self->value, value);
     } else if (strcmp(name, "units") == 0) {
-        if (PyUnicode_Check(value)) {
-            strncpy(self->units, PyUnicode_AsUTF8(value), CD_MAX_RELUNITS);
+        if (PyStr_Check(value)) {
+            strncpy(self->units, PyStr_AsUTF8(value), CD_MAX_RELUNITS);
             self->units[CD_MAX_RELUNITS] = '\0';
             return 0;
         } else
@@ -825,26 +828,28 @@ PyCdComptime_Repr(PyCdComptimeObject *self) {
 static PyObject *
 PyCdComptime_Getattro(PyCdComptimeObject *self, PyObject *nameobj) /* on "instance.attr" reference  */
 { /* exposed data-members */
-    if (PyUnicode_CompareWithASCIIString(nameobj, "year") == 0) /* really C struct fields */
+    char *objname;
+    objname = PyStr_AsString(nameobj);
+    if (strcmp(objname, "year") == 0) /* really C struct fields */
         return Py_BuildValue("l", self->year);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "month") == 0)
+    else if (strcmp(objname, "month") == 0)
         return Py_BuildValue("i", self->month);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "day") == 0)
+    else if (strcmp(objname, "day") == 0)
         return Py_BuildValue("i", self->day);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "hour") == 0)
+    else if (strcmp(objname, "hour") == 0)
         return Py_BuildValue("i", self->hour);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "minute") == 0)
+    else if (strcmp(objname, "minute") == 0)
         return Py_BuildValue("i", self->minute);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "second") == 0)
+    else if (strcmp(objname, "second") == 0)
         return Py_BuildValue("d", self->second);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "__members__") == 0) /* __methods__ is free */
+    else if (strcmp(objname, "__members__") == 0) /* __methods__ is free */
         return Py_BuildValue("[sssssssss]", "year", "month", "day", "hour",
                 "minute", "second", "absvalue", "absunits", "fraction"); /* make a list of 1 string */
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "absvalue") == 0)
+    else if (strcmp(objname, "absvalue") == 0)
         return Py_BuildValue("d", self->absvalue);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "absunits") == 0)
+    else if (strcmp(objname, "absunits") == 0)
         return Py_BuildValue("s", self->absunits);
-    else if (PyUnicode_CompareWithASCIIString(nameobj, "fraction") == 0)
+    else if (strcmp(objname, "fraction") == 0)
         return Py_BuildValue("d", self->fraction);
     else
         return PyObject_GenericGetAttr((PyObject *) self, nameobj);
@@ -854,17 +859,19 @@ PyCdComptime_Getattro(PyCdComptimeObject *self, PyObject *nameobj) /* on "instan
 static int PyCdComptime_Setattro(PyCdComptimeObject *self, PyObject *name,
         PyObject *value) {
 
-    if (PyUnicode_CompareWithASCIIString(name, "year") == 0)
+    char *objname;
+    objname = PyStr_AsString(name);
+    if (strcmp(objname, "year") == 0)
         return set_long_to_scalar(&self->year, value);
-    else if (PyUnicode_CompareWithASCIIString(name, "month") == 0)
+    else if (strcmp(objname, "month") == 0)
         return set_int_to_scalar(&self->month, value);
-    else if (PyUnicode_CompareWithASCIIString(name, "day") == 0)
+    else if (strcmp(objname, "day") == 0)
         return set_int_to_scalar(&self->day, value);
-    else if (PyUnicode_CompareWithASCIIString(name, "hour") == 0)
+    else if (strcmp(objname, "hour") == 0)
         return set_int_to_scalar(&self->hour, value);
-    else if (PyUnicode_CompareWithASCIIString(name, "minute") == 0)
+    else if (strcmp(objname, "minute") == 0)
         return set_int_to_scalar(&self->minute, value);
-    else if (PyUnicode_CompareWithASCIIString(name, "second") == 0)
+    else if (strcmp(objname, "second") == 0)
         return set_double_to_scalar(&self->second, value);
     else
         onSetError("Component time attribute unknown or read-only");
@@ -1234,13 +1241,9 @@ static struct PyModuleDef moduledef = {
 PyModuleDef_HEAD_INIT, "cdtime", /* m_name */
 "", /* m_doc */
 -1, /* m_size */
-cdtime_methods, /* m_methods */
-NULL, /* m_reload */
-NULL, /* m_traverse */
-NULL, /* m_clear */
-NULL, /* m_free */
+cdtime_methods /* m_methods */
 };
-PyMODINIT_FUNC PyInit_cdtime(void) {
+MODULE_INIT_FUNC(cdtime) {
     PyObject *m, *d;
 
     /* Initialize type object headers */
