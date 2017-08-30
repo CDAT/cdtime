@@ -74,14 +74,8 @@ PyObject *PyCdtime_ModuleDict; /* module dictionary */
  *****************************************************************************/
 
 static int set_double_to_scalar(double *d, PyObject *value) {
-#if PY_MAJOR_VERSION <3
-    if (PyInt_Check(value)){
+    if (PyInt_Check(value)) {
         *d = PyInt_AsLong(value);
-        return 0;
-    }
-#endif
-    if (PyLong_Check(value)) {
-        *d = PyLong_AsLong(value);
         return 0;
     } else if (PyFloat_Check(value)) {
         *d = PyFloat_AsDouble(value);
@@ -92,14 +86,8 @@ static int set_double_to_scalar(double *d, PyObject *value) {
 
 static int set_long_to_scalar(long *lval, PyObject *value) {
 
-#if PY_MAJOR_VERSION <3
     if (PyInt_Check(value)){
-        *lval = PyInt_AsLong(value);
-        return 0;
-    }
-#endif
-    if (PyLong_Check(value)) {
-        *lval = PyLong_AsLong(value);
+        *lval = (long) PyInt_AsLong(value);
         return 0;
     } else
         onSetError("Value of time component is not a long integer");
@@ -107,12 +95,8 @@ static int set_long_to_scalar(long *lval, PyObject *value) {
 
 static int set_int_to_scalar(int *i, PyObject *value) {
 
-#if PY_MAJOR_VERSION >= 3
-    if (PyLong_Check(value)) {
-#else
     if (PyInt_Check(value)) {
-#endif
-        *i = PyLong_AsLong(value);
+        *i = (int) PyInt_AsLong(value);
         return 0;
     } else
         onSetError("Value of time component is not an integer");

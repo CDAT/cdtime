@@ -5,6 +5,8 @@ class CDTIMETest(unittest.TestCase):
     def testCdtimeComponent(self):
         tc = cdtime.comptime(2017)
         value = 4
+        import pdb
+        pdb.set_trace()
         tc.month = value
         tc.year = value
         tc.day = value
