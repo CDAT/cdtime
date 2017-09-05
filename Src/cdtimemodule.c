@@ -218,13 +218,14 @@ reltime_cmp2(PyCdReltimeObject *self, PyObject *other, cdCalenType calendar) {
 
     if (PyCdReltime_Compare(self, (PyObject *) otherReltime, Py_EQ) == Py_True) {
         comparison = 0;
+        Py_XDECREF(otherReltime);
     } else if (PyCdReltime_Compare(self, (PyObject *) otherReltime,
     Py_LT) == Py_True) {
         comparison = -1;
+        Py_XDECREF(otherReltime);
     } else {
         comparison = 1;
     }
-    Py_XDECREF(otherReltime);
     SET_CALENDAR(saveCalendar);
     return Py_BuildValue("i", comparison);
 
