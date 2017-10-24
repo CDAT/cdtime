@@ -75,8 +75,11 @@ PyObject *PyCdtime_ModuleDict; /* module dictionary */
 
 static int set_double_to_scalar(double *d, PyObject *value) {
 
-    if (PyLong_Check(value)) {
-        *d = PyLong_AsLong(value);
+    if (PyInt_Check(value)) {
+        *d = (double) PyInt_AsLong(value);
+        return 0;
+    } else if (PyLong_Check(value)) {
+        *d = (double) PyLong_AsLong(value);
         return 0;
     } else if (PyFloat_Check(value)) {
         *d = PyFloat_AsDouble(value);
@@ -96,8 +99,8 @@ static int set_long_to_scalar(long *lval, PyObject *value) {
 
 static int set_int_to_scalar(int *i, PyObject *value) {
 
-    if (PyLong_Check(value)) {
-        *i = PyLong_AsLong(value);
+    if (PyInt_Check(value)) {
+        *i = PyInt_AsLong(value);
         return 0;
     } else
         onSetError("Value of time component is not an integer");
