@@ -62,7 +62,7 @@ typedef struct {                 /* reltime instance object */
     char units[CD_MAX_RELUNITS+1];
 } PyCdReltimeObject;
 
-staticforward PyTypeObject RelTimeType;
+static PyTypeObject RelTimeType;
 
 #define is_reltimeobject(v)  ((v)->ob_type == &RelTimeType)
 #define PyCdReltime_Check is_reltimeobject
@@ -84,7 +84,7 @@ typedef struct {                 /* comptime instance object */
     double fraction;			     /* abstime fractional part */
 } PyCdComptimeObject;
 
-staticforward PyTypeObject CompTimeType;     /* shared type-descriptor */
+static PyTypeObject CompTimeType;     /* shared type-descriptor */
 
 #define is_comptimeobject(v)  ((v)->ob_type == &CompTimeType)
 #define PyCdComptime_Check is_comptimeobject
