@@ -13,6 +13,10 @@ if [ $(uname) == "Linux" ]; then
     echo $PATH
     conda config --set always_yes yes --set changeps1 no
     conda update -y -q conda
+    conda install libgfortran
+    ln -s ~/miniconda/lib/libgfortran.so.3.0.0 ~/miniconda/envs/py2/lib/libgfortran.so
+    ls -l ~/miniconda/lib
+    export LD_LIBRARY_PATH=${HOME}/miniconda/lib
 else
     echo "Mac OS"
     OS=osx-64
