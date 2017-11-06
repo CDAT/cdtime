@@ -6,6 +6,12 @@ echo "Trying to upload conda"
 if [ $(uname) == "Linux" ]; then
     OS=linux-64
     echo "Linux OS"
+    yum install -y wget git gcc
+    wget --no-check https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh  -O miniconda2.sh 2> /dev/null
+    bash miniconda2.sh -b -p $HOME/miniconda
+    export PATH=$HOME/miniconda/bin:$PATH
+    echo $PATH
+    conda config --set always_yes yes --set changeps1 no
     conda update -y -q conda
 else
     echo "Mac OS"
