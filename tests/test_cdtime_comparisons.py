@@ -36,5 +36,3 @@ class CDTimeComparisons(unittest.TestCase):
         self.assertLess(self.smallComp,self.bigComp)
         self.assertGreater(self.bigComp,self.smallRel)
         self.assertGreater(self.bigComp,self.smallComp)
-        
-        

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 export UVCDAT_ANONYMOUS_LOG=False
 export PATH=${HOME}/miniconda/bin:${PATH}
 source activate py2
