@@ -23,7 +23,7 @@ git clone git://github.com/UV-CDAT/conda-recipes
 cd conda-recipes
 # uvcdat creates issues for build -c uvcdat confises package and channel
 rm -rf uvcdat
-python ./prep_for_build.py -v $(date +%Y.%m.%d) -b python3_continued
+python ./prep_for_build.py -v $(date +%Y.%m.%d) -b issue_8_cmp_failing
 echo "Building and uploading now"
 conda build -c conda-forge  ${PKG_NAME} --numpy=1.13 --python=2.7
 conda build -c conda-forge  ${PKG_NAME} --numpy=1.12 --python=2.7
