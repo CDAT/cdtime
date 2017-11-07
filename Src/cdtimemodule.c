@@ -74,8 +74,12 @@ PyObject *PyCdtime_ModuleDict; /* module dictionary */
  *****************************************************************************/
 
 static int set_double_to_scalar(double *d, PyObject *value) {
+
     if (PyInt_Check(value)) {
-        *d = PyInt_AsLong(value);
+        *d = (double) PyInt_AsLong(value);
+        return 0;
+    } else if (PyLong_Check(value)) {
+        *d = (double) PyLong_AsLong(value);
         return 0;
     } else if (PyFloat_Check(value)) {
         *d = PyFloat_AsDouble(value);
@@ -211,19 +215,24 @@ reltime_cmp2(PyCdReltimeObject *self, PyObject *other, cdCalenType calendar) {
         /* Coerce comptime to reltime */
         otherReltime = (PyCdReltimeObject *) comptime_torel(
                 (PyCdComptimeObject *) other, self->units, calendar);
+    } else {
+        otherReltime = newreltimeobject(
+                ((PyCdReltimeObject *) other)->value,
+                ((PyCdReltimeObject *) other)->units);
     }
 
     //#define VALCMP(a,b) ((a)<(b)?-1:(b)<(a)?1:0)
 
     if (PyCdReltime_Compare(self, (PyObject *) otherReltime, Py_EQ) == Py_True) {
         comparison = 0;
+        Py_XDECREF(otherReltime);
     } else if (PyCdReltime_Compare(self, (PyObject *) otherReltime,
     Py_LT) == Py_True) {
         comparison = -1;
+        Py_XDECREF(otherReltime);
     } else {
         comparison = 1;
     }
-    Py_XDECREF(otherReltime);
     SET_CALENDAR(saveCalendar);
     return Py_BuildValue("i", comparison);
 
@@ -692,6 +701,10 @@ PyCdReltime_Compare(PyCdReltimeObject *v, PyObject *other, int op) {
         /* Coerce comptime to reltime */
         w = (PyCdReltimeObject *) comptime_torel(
                 (PyCdComptimeObject *) other, v->units, calendar);
+    } else {
+        w = newreltimeobject(
+                ((PyCdReltimeObject *)other)->value,
+                ((PyCdReltimeObject *)other)->units);
     }
     cdRel2Rel(calendar, v->units, v->value, "days", &s);
     cdRel2Rel(calendar, w->units, w->value, "days", &o);
