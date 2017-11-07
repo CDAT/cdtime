@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import shutil
 import glob
 import sys
 import os
@@ -12,8 +11,6 @@ import time
 import webbrowser
 import shlex
 import cdat_info
-import numpy.distutils
-import distutils
 
 root = os.getcwd()
 cpus = multiprocessing.cpu_count()
@@ -53,14 +50,13 @@ parser.add_argument(
     action="store_true",
     default=False,
     help="runs only tests that failed last time and are in the list you provide")
-parser.add_argument("-s","--subdir",action="store_true",help="run in a subdirectory")
-
 parser.add_argument("tests", nargs="*", help="tests to run")
 
 args = parser.parse_args()
 
 
 def abspath(path, name, prefix):
+    import shutil
     full_path = os.path.abspath(os.path.join(os.getcwd(), "..", path))
     if not os.path.exists(name):
         os.makedirs(name)
@@ -94,7 +90,7 @@ def findDiffFiles(log):
                         file2 = log[k].split()[2]
                     except:
                         file2 = log[k].split()[1][:-1]+log[j].split()[0]
-                        print(("+++++++++++++++++++++++++",file2))
+                        print("+++++++++++++++++++++++++",file2)
             if log[j].find("Saving image diff") > -1:
                 diff = log[j].split()[-1]
                 # break
@@ -119,7 +115,7 @@ def run_command(command, join_stderr=True):
     out = []
     while P.poll() is None:
         read = P.stdout.readline().rstrip()
-        out.append(read)
+        out.append(read.decode())
         if args.verbosity > 1 and len(read) != 0:
             print(read)
     return P, out
@@ -142,17 +138,12 @@ sys.path.append(
         os.path.dirname(
             os.path.abspath(__file__)),
         "tests"))
-
-
 if len(args.tests) == 0:
     names = glob.glob("tests/test_*.py")
 else:
     names = set(args.tests)
 
-
 if args.failed_only and os.path.exists(os.path.join("tests",".last_failure")):
-    if not os.path.exists("tests"):
-        os.makedirs("tests")
     f = open(os.path.join("tests",".last_failure"))
     failed = set(eval(f.read().strip()))
     f.close()
@@ -162,22 +153,15 @@ if args.failed_only and os.path.exists(os.path.join("tests",".last_failure")):
             new_names.append(fnm)
     names = new_names
 
-if args.subdir:
-    import tempfile
-    tmpdir = tempfile.mkdtemp()
-    os.chdir(tmpdir)
-    names = [ os.path.join(root,t) for t in names]
-    print("RUNNNIG FROM:",tmpdir)
+if args.verbosity > 1:
+    print(("Names:", names))
 
 if len(names)==0:
     print("No tests to run")
     sys.exit(0)
 
-if args.verbosity > 1:
-    print(("Names:", names))
-
 # Make sure we have sample data
-cdat_info.download_sample_data_files(os.path.join(distutils.sysconfig.get_python_lib(),"share","cdms2","test_data_files.txt"),cdat_info.get_sampledata_path())
+#cdat_info.download_sample_data_files(os.path.join(sys.prefix,"share","cdtime","test_data_files.txt"),cdat_info.get_sampledata_path())
 
 p = multiprocessing.Pool(args.cpus)
 outs = p.map(run_nose, names)
@@ -188,10 +172,7 @@ for d in outs:
     nm = list(d.keys())[0]
     if d[nm]["result"] != 0:
         failed.append(nm)
-if args.subdir:
-    f = open(os.path.join(root,"tests",".last_failure"),"w")
-else:
-    f = open(os.path.join("tests",".last_failure"),"w")
+f = open(os.path.join("tests",".last_failure"),"w")
 f.write(repr(failed))
 f.close()
 
@@ -212,10 +193,10 @@ if args.html or args.package or args.dropbox:
     fi = open("index.html", "w")
     print("<!DOCTYPE html>", file=fi)
     print("""<html><head><title>VCS Test Results %s</title>
-    <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.13/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.12.4.js"></script>
     <script type="text/javascript" charset="utf8"
-    src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+    src="http://rawgit.com/WCRP-CMIP/CMIP6_CVs/master/src/jquery.dataTables.js"></script>
     <script>
     $(document).ready( function () {
             $('#table_id').DataTable({
@@ -255,8 +236,7 @@ if args.html or args.package or args.dropbox:
                 print("<div id='diff'><img src='%s' alt='diff file'></div>" % abspath(
                     diff, nm, "diff"), file=fe)
                 print("<div><a href='index.html'>Back To Results List</a></div>", file=fe)
-        print('<div id="output"><h1>Log</h1><pre>%s</pre></div>' % "\n".join(result[
-                                                                                  "log"]), file=fe)
+        print('<div id="output"><h1>Log</h1><pre>{}</pre></div>'.format("\n".join(result["log"])), file=fe)
         print("<a href='index.html'>Back To Results List</a>", file=fe)
         print("</body></html>", file=fe)
         fe.close()
@@ -268,18 +248,12 @@ if args.html or args.package or args.dropbox:
     fi.close()
     if args.html:
         webbrowser.open("file://%s/index.html" % os.getcwd())
-else:
-    if len(failed) == 0 and args.subdir:
-        print("Remving temp run dir: %s" % tmpdir)
-        os.chdir(root)
-        shutil.rmtree(tmpdir)
+    os.chdir(root)
 
 if args.package or args.dropbox:
     import tarfile
-    os.chdir(tmpdir)
     tnm = "results_%s_%s_%s.tar.bz2" % (os.uname()[0],os.uname()[1],time.strftime("%Y-%m-%d_%H:%M"))
     t = tarfile.open(tnm, "w:bz2")
-    print("PATH TARRING FROM: %s" % os.getcwd())
     t.add("tests_html")
     t.add("tests_html")
     t.close()
@@ -292,7 +266,5 @@ if args.dropbox:
     dbx.files_upload(f.read(),"/%s"%tnm)
     f.close()
 
-if args.subdir and len(failed)!=0:
-    print("Do not removing to clean temp directory: %s" % tmpdir)
-os.chdir(root)
+
 sys.exit(len(failed))
