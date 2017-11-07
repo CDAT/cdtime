@@ -215,6 +215,10 @@ reltime_cmp2(PyCdReltimeObject *self, PyObject *other, cdCalenType calendar) {
         /* Coerce comptime to reltime */
         otherReltime = (PyCdReltimeObject *) comptime_torel(
                 (PyCdComptimeObject *) other, self->units, calendar);
+    } else {
+        otherReltime = newreltimeobject(
+                ((PyCdReltimeObject *) other)->value,
+                ((PyCdReltimeObject *) other)->units);
     }
 
     //#define VALCMP(a,b) ((a)<(b)?-1:(b)<(a)?1:0)
@@ -697,6 +701,10 @@ PyCdReltime_Compare(PyCdReltimeObject *v, PyObject *other, int op) {
         /* Coerce comptime to reltime */
         w = (PyCdReltimeObject *) comptime_torel(
                 (PyCdComptimeObject *) other, v->units, calendar);
+    } else {
+        w = newreltimeobject(
+                ((PyCdReltimeObject *)other)->value,
+                ((PyCdReltimeObject *)other)->units);
     }
     cdRel2Rel(calendar, v->units, v->value, "days", &s);
     cdRel2Rel(calendar, w->units, w->value, "days", &o);
