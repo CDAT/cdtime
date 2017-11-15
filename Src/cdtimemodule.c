@@ -628,8 +628,9 @@ newreltimeobject(double value, char *units) /* instance constructor function */
     calendar = GET_CALENDAR;
 
     /* Check that the relative time units will parse */
-    if (cdParseRelunits(calendar, units, &relunits, &basetime))
+    if (cdParseRelunits(calendar, units, &relunits, &basetime)){
         onError("Invalid relative time units");
+    }
     self = PyObject_NEW(PyCdReltimeObject, &RelTimeType); /* malloc, init, incref */
     if (self == NULL)
         return NULL; /* raise exception */
@@ -1270,7 +1271,7 @@ MODULE_INIT_FUNC(cdtime) {
     }
     /* add symbolic constants to the module */
     d = PyCdtime_ModuleDict = PyModule_GetDict(m);
-    PyCdtime_ErrorObject = Py_BuildValue("s", "Cdtime error");
+    PyCdtime_ErrorObject = PyExc_ValueError;
     PyDict_SetItemString(d, "error", PyCdtime_ErrorObject); /* export exception */
     DefineLongConstant(d, "StandardCalendar", (long)cdStandard);
     DefineLongConstant(d, "GregorianCalendar", (long)cdStandard);
