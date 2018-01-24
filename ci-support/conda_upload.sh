@@ -34,19 +34,12 @@ cd conda-recipes
 # uvcdat creates issues for build -c uvcdat confises package and channel
 rm -rf uvcdat
 python ./prep_for_build.py -v $(date +%Y.%m.%d)
+#
 echo "Building and uploading now"
 #
 # use variant configuration in conda_build_config.yaml
+# Bug in conda-build 3.3.0 can be avoided with 3.2.2 on OSX
 #
-conda build -c conda-forge  -m cdtime/conda_build_config.yaml ${PKG_NAME}  
-#--numpy=1.13 --python=2.7
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.12 --python=2.7
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.11 --python=2.7
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.10 --python=2.7
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.9 --python=2.7
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.13 --python=3.6
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.12 --python=3.6
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.11 --python=3.6
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.10 --python=3.6
-#conda build -c conda-forge  ${PKG_NAME} --numpy=1.9 --python=3.6
+conda install conda-build==3.2.2
+conda build -c conda-forge  ${PKG_NAME}  
 anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l nightly $CONDA_BLD_PATH/$OS/$PKG_NAME-$(date +%Y.%m.%d)-*_0.tar.bz2 --force
