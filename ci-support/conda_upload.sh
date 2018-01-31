@@ -3,20 +3,22 @@ PKG_NAME=cdtime
 USER=uvcdat
 export PATH="$HOME/miniconda/bin:$PATH"
 echo "Trying to upload conda"
-if [ $(uname) == "Linux" ]; then
+if [ `uname` == "Linux" ]; then
     OS=linux-64
     echo "Linux OS"
     yum install -y wget git gcc
-    wget --no-check https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh  -O miniconda2.sh 2> /dev/null
-    bash miniconda2.sh -b -p $HOME/miniconda
-    export PATH=$HOME/miniconda/bin:$PATH
+    # wget --no-check https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh  -O miniconda3.sh 2> /dev/null
+    wget --no-check https://repo.continuum.io/miniconda/Miniconda2-4.3.30-Linux-x86_64.sh  -O miniconda2.sh 2> /dev/null
+    bash miniconda2.sh -b -p ${HOME}/miniconda
+    export SYSPATH=$PATH
+    export PATH=${HOME}/miniconda/bin:${SYSPATH}
     echo $PATH
     conda config --set always_yes yes --set changeps1 no
-    conda update -y -q conda
-    conda install libgfortran
-    ln -s ~/miniconda/lib/libgfortran.so.3.0.0 ~/miniconda/envs/py2/lib/libgfortran.so
-    ls -l ~/miniconda/lib
-    export LD_LIBRARY_PATH=${HOME}/miniconda/lib
+    conda config --set anaconda_upload false --set ssl_verify false
+    conda install -n root -q anaconda-client "conda-build<3.3"
+    conda install -n root gcc future
+    which python
+    export UVCDAT_ANONYMOUS_LOG=False
 else
     echo "Mac OS"
     OS=osx-64
@@ -33,7 +35,7 @@ git clone git://github.com/UV-CDAT/conda-recipes
 cd conda-recipes
 # uvcdat creates issues for build -c uvcdat confises package and channel
 rm -rf uvcdat
-python ./prep_for_build.py -v $(date +%Y.%m.%d)
+python ./prep_for_build.py -v ${VERSION}
 #
 echo "Building now"
 conda build -c conda-forge  ${PKG_NAME} 
