@@ -34,6 +34,11 @@ cd conda-recipes
 # uvcdat creates issues for build -c uvcdat confises package and channel
 rm -rf uvcdat
 python ./prep_for_build.py -v $(date +%Y.%m.%d)
-echo "Building and uploading now"
+#
+echo "Building now"
 conda build -c conda-forge  ${PKG_NAME} 
+echo "Uploading now"
+mkdir -p ~/.continuum/anaconda-client/
+echo "ssl_verify: false" >> ~/.continuum/anaconda-client/config.yaml
+echo "verify_ssl: false" >> ~/.continuum/anaconda-client/config.yaml
 anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l ${LABEL} $CONDA_BLD_PATH/$OS/$PKG_NAME-$(date +%Y.%m.%d)-*_0.tar.bz2 --force
