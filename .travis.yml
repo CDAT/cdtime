@@ -29,6 +29,11 @@ script:
 - python setup.py install 
 - python run_tests.py -v2
 after_success:
+- if [ "$TRAVIS_OS_NAME" == "linux" -a "$TRAVIS_BRANCH" != "master"  ]; then  docker run -v `pwd`:/travis_home
+  -e CONDA_UPLOAD_TOKEN=${CONDA_UPLOAD_TOKEN}
+  -e LABEL="unstable"
+  -a STDOUT -a STDERR centos:6.8 /travis_home/ci-support/conda_upload.sh ; fi
 - if [ "$TRAVIS_OS_NAME" == "linux" -a "$TRAVIS_BRANCH" == "master" -a "$TRAVIS_PULL_REQUEST" == "false" ]; then  docker run -v `pwd`:/travis_home
   -e CONDA_UPLOAD_TOKEN=${CONDA_UPLOAD_TOKEN}
+  -e LABEL="nightly"
   -a STDOUT -a STDERR centos:6.8 /travis_home/ci-support/conda_upload.sh ; fi
