@@ -8,5 +8,6 @@ source activate py3
 python run_tests.py -v2 
 RESULT=$(( $RESULT + $? ))
 echo "RESULT:"${RESULT}
-if [ $RESULT -eq 0 -a $CIRCLE_BRANCH == "master" ]; then bash ./ci-support/conda_upload.sh ; fi
+if [ $RESULT -eq 0 -a $CIRCLE_BRANCH == "master" ]; then LABEL=nightly bash ./ci-support/conda_upload.sh ; fi
+if [ $RESULT -eq 0 -a $CIRCLE_BRANCH != "master" ]; then LABEL=unstable bash ./ci-support/conda_upload.sh ; fi
 exit $RESULT
