@@ -26,7 +26,11 @@ fi
 
 mkdir ~/conda-bld
 source activate root
-conda install -q anaconda-client conda-build
+if [ `uname` == "Linux" ]; then
+    conda install -n root -q anaconda-client "conda-build<3.3"
+else
+    conda install -n root -q anaconda-client conda-build
+fi
 conda config --set anaconda_upload no
 export CONDA_BLD_PATH=${HOME}/conda-bld
 export VERSION=$(date +%Y.%m.%d)
