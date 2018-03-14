@@ -10,7 +10,7 @@ before_install:
 - conda update -y -q conda
   #- conda install gcc
 script:
-- conda create -n py2 -c uvcdat/label/nightly -c conda-forge -c uvcdat cdat_info libcdms libdrs_f numpy  flake8 nose libgfortran
+- conda create -n py2 -c cdat/label/nightly -c uvcdat/label/nightly -c conda-forge -c uvcdat cdat_info libcdms libdrs_f numpy  flake8 nose libgfortran
 - ln -s ~/miniconda/envs/py2/lib/libgfortran.so.3.0.0 ~/miniconda/envs/py2/lib/libgfortran.so
 - ls -l ~/miniconda/envs/py2/lib
 - export UVCDAT_ANONYMOUS_LOG=False
@@ -22,7 +22,7 @@ script:
 - python setup.py install 
 - python run_tests.py -v2
 - rm -rf build
-- conda create -n py3 -c uvcdat/label/nightly -c conda-forge -c uvcdat cdat_info libcdms libdrs_f numpy  flake8 nose "python>3" libgfortran
+- conda create -n py3 -c cdat/label/nightly -c uvcdat/label/nightly -c conda-forge -c uvcdat cdat_info libcdms libdrs_f numpy  flake8 nose "python>3" libgfortran
 - ln -s ~/miniconda/envs/py3/lib/libgfortran.so.3.0.0 ~/miniconda/envs/py3/lib/libgfortran.so
 - ls -l ~/miniconda/envs/py3/lib
 - source activate py3
