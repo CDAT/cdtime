@@ -10,7 +10,7 @@ before_install:
 - conda update -y -q conda
   #- conda install gcc
 script:
-- conda create -n py2 -c cdat/label/nightly -c conda-forge -c cdat cdat_info libcdms libdrs_f numpy  flake8 nose libgfortran
+- conda create -n py2 -c cdat/label/nightly -c conda-forge -c cdat cdat_info libcdms libdrs_f numpy  flake8 nose libgfortran "python<3"
 - ln -s ~/miniconda/envs/py2/lib/libgfortran.so.3.0.0 ~/miniconda/envs/py2/lib/libgfortran.so
 - ls -l ~/miniconda/envs/py2/lib
 - export UVCDAT_ANONYMOUS_LOG=False
