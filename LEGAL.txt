@@ -1,4 +1,4 @@
-Climate Data Analysis Tools (CDAT)
+Community Data Analysis Tools (CDAT)
 
 
 UCRL-CODE-2002-0021
