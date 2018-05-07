@@ -14,12 +14,10 @@ checkout:
 
 #machine:
 machine:
-    xcode:
-        version: 7.2
+#    xcode:
+#        version: 7.2
     pre:
-    #    - sudo -H pip install --upgrade virtualenv
-        - pip install --user --ignore-installed --upgrade --verbose virtualenv
-        - ln -s ~/Library/Python/2.7/bin/virtualenv /usr/local/bin/virtualenv
+        - sudo -H pip install --upgrade virtualenv
         - ls
         - pwd
         - bash cdtime/ci-support/circleci_mac_machine_pre.sh
