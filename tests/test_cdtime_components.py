@@ -21,6 +21,37 @@ class CDTIMETest(unittest.TestCase):
         value = 4.
         tc.second = value
 
+    def testCdtimeCmp(self):
+        res = cdtime.comptime(2000)<cdtime.comptime(2001)
+        self.assertTrue(res)
+
+        res = cdtime.comptime(2000).__lt__(cdtime.comptime(2001))
+        self.assertTrue(res)
+
+        res =cdtime.reltime(0,'hours since 2000')>cdtime.reltime(1,'hours since 2000')
+        self.assertFalse(res)
+
+        res = cdtime.reltime(0,'hours since 2000')<cdtime.reltime(1,'hours since 2000')
+        self.assertTrue(res)
+
+        res = cdtime.comptime(2000)>cdtime.comptime(2001)
+        self.assertFalse(res)
+
+        res = cdtime.comptime(2000)<cdtime.comptime(2001)
+        self.assertTrue(res)
+
+        res = cdtime.reltime(0,'years since 2000')>cdtime.reltime(1,'years since 2000')
+        self.assertFalse(res)
+
+        res = cdtime.reltime(0,'years since 2000')<cdtime.reltime(1,'years since 2000')
+        self.assertTrue(res)
+
+        res = cdtime.comptime(2000,1,1,0)>cdtime.comptime(2000,1,1,1)
+        self.assertFalse(res)
+
+        res = cdtime.comptime(2000,1,1,0)<cdtime.comptime(2000,1,1,1)
+        self.assertTrue(res)
+
 if __name__ == '__main__':
     unittest.main()
 
