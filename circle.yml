@@ -17,7 +17,7 @@ machine:
     xcode:
         version: 7.2
     pre:
-        - sudo -H pip install --upgrade virtualenv
+    #    - sudo -H pip install --upgrade virtualenv
         - ls
         - pwd
         - bash cdtime/ci-support/circleci_mac_machine_pre.sh
