@@ -22,6 +22,12 @@ class CDTimeComparisons(unittest.TestCase):
         self.assertEqual(self.smallRel.cmp(self.smallRel),0)
         self.assertEqual(self.bigRel.cmp(self.smallComp),1)
         self.assertEqual(self.bigRel.cmp(self.smallRel),1)
+    def testConversion(self):
+        bigTransComp = self.bigRel.tocomp()
+        self.assertTrue(bigTransComp == self.bigComp)
+        bigTransRel = self.bigComp.torel("days since 2020")
+        self.assertTrue(bigTransRel == self.bigRel)
+
 if __name__ == '__main__':
    unittest.main()
 
