@@ -44,16 +44,32 @@ aliases:
        set -e
        source activate py2
        python run_tests.py -v2 
-       PY2_RESULT=$?
+       export PY2_RESULT=$?
        echo "*** py2 test result: "${PY2_RESULT}
        source activate py3
        python run_tests.py -v2 
-       PY3_RESULT=$?
+       export PY3_RESULT=$?
        echo "*** py3 test result: "${PY3_RESULT}
-       if [ $PY2_RESULT -eq 0 -a $PY3_RESULT -eq 0 -a $CIRCLE_BRANCH == "master" ]; then bash ./ci-support/conda_upload.sh ; fi
        if [ $PY2_RESULT	-ne 0 -o $PY3_RESULT -ne 0]; then
          exit 1
        fi
+  - &upload_cdtime
+    name: upload_cdtime
+    command: |
+       export PATH=$HOME/project/$WORKDIR/miniconda/bin:$PATH
+       export LABEL="nightly";
+       echo "*** py2 test result: "${PY2_RESULT}
+       echo "*** py3 test result: "${PY3_RESULT}
+       echo "*** CIRCLE BRANCH: "${CIRCLE_BRANCH}
+       if [ $PY2_RESULT -eq 0 -a $PY3_RESULT -eq 0 -a $CIRCLE_BRANCH == "master" ]; then bash ./ci-support/conda_upload.sh ; fi
+       if [ $PY2_RESULT -eq 0 -a $PY3_RESULT -eq 0 -a $CIRCLE_BRANCH == "master" ]; then conda install -n root conda-build anaconda-client ; fi
+       if [ $PY2_RESULT -eq 0 -a $PY3_RESULT -eq 0 -a $CIRCLE_BRANCH != "master" ]; then bash ./ci-support/conda_upload.sh ; fi
+       if [ $PY2_RESULT -eq 0 -a $PY3_RESULT -eq 0 -a $CIRCLE_BRANCH != "master" ]; then
+           export LABEL="unstable";
+           conda install -n root conda-build anaconda-client;
+           bash ./ci-support/conda_upload.sh;
+       fi
+
 
 jobs:
   macos_cdtime:
@@ -67,6 +83,7 @@ jobs:
       - run: *create_conda_env
       - run: *setup_cdtime
       - run: *run_cdtime_tests
+      - run: *upload_cdtime
 
   linux_cdtime:
     machine:
