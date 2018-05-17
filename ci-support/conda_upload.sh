@@ -40,5 +40,5 @@ echo "Building and uploading now"
 # Bug in conda-build 3.3.0 can be avoided with 3.2.2 on OSX
 #
 conda install conda-build
-conda build -c conda-forge  ${PKG_NAME}  
+conda build -c cdat/label/unstable -c cdat/label/nightly -c conda-forge  ${PKG_NAME}  
 anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l nightly $CONDA_BLD_PATH/$OS/$PKG_NAME*_0.tar.bz2 --force

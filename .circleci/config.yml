@@ -22,8 +22,8 @@ aliases:
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
        conda config --set anaconda_upload no
-       conda create -n py3 -c cdat/label/nightly -c conda-forge numpy cdat_info libcdms libdrs_f flake8 nose "python>3"
-       conda create -n py2 -c cdat/label/nightly -c conda-forge cdat_info libcdms libdrs_f nose flake8 numpy "python<3"
+       conda create -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge numpy cdat_info libcdms libdrs_f flake8 nose "python>3"
+       conda create -n py2 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge cdat_info libcdms libdrs_f nose flake8 numpy "python<3"
 
   - &setup_cdtime
     name: setup_cdtime
@@ -82,7 +82,7 @@ jobs:
 
 workflows:
   version: 2
-  nightly:
+  cdtime_test:
     jobs:
       - macos_cdtime
       - linux_cdtime
