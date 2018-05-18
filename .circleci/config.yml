@@ -22,7 +22,7 @@ aliases:
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
        conda config --set anaconda_upload no
-       conda create -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge numpy cdat_info libcdms libdrs_f flake8 nose "python>3"
+       conda create -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge numpy gcc_linux-64 cdat_info libcdms libdrs_f flake8 nose "python>3"
        conda create -n py2 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge cdat_info libcdms libdrs_f nose flake8 numpy "python<3"
 
   - &setup_cdtime
@@ -34,7 +34,7 @@ aliases:
        python setup.py install
        source activate py2
        rm -rf build
-       python setup.py install
+       LDSHARED="$CC -shared -pthread" python setup.py install
 
   - &run_cdtime_tests
     name: run_cdtime_tests
