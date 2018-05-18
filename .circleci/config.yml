@@ -39,10 +39,18 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export UVCDAT_ANONYMOUS_LOG=False
        source activate py3
-       LDSHARED="$CC -shared -pthread" python setup.py install
+       if [ $(uname) == "Linux" ]; then
+           LDSHARED="$CC -shared -pthread" python setup.py install
+       else
+           python setup.py install
+       fi
        source activate py2
        rm -rf build
-       LDSHARED="$CC -shared -pthread" python setup.py install
+       if [ $(uname) == "Linux" ]; then
+           LDSHARED="$CC -shared -pthread" python setup.py install
+       else
+           python setup.py install
+       fi
 
   - &run_cdtime_tests
     name: run_cdtime_tests
