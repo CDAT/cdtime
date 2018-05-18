@@ -22,8 +22,16 @@ aliases:
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
        conda config --set anaconda_upload no
-       conda create -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge numpy gcc_linux-64 cdat_info libcdms libdrs_f flake8 nose "python>3"
+       conda create -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge numpy cdat_info libcdms libdrs_f flake8 nose "python>3"
        conda create -n py2 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge cdat_info libcdms libdrs_f nose flake8 numpy "python<3"
+       if [ $(uname) == "Linux" ]; then
+           conda install -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge gcc_linux-64
+           conda install -n py2 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge gcc_linux-64
+       else
+           conda install -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge gcc
+           conda install -n py2 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge gcc
+       fi
+
 
   - &setup_cdtime
     name: setup_cdtime
@@ -31,7 +39,7 @@ aliases:
        export PATH=$WORKDIR/miniconda/bin:$PATH
        export UVCDAT_ANONYMOUS_LOG=False
        source activate py3
-       python setup.py install
+       LDSHARED="$CC -shared -pthread" python setup.py install
        source activate py2
        rm -rf build
        LDSHARED="$CC -shared -pthread" python setup.py install
