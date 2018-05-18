@@ -71,7 +71,7 @@ aliases:
        #
        echo  $PY2_RESULT > $HOME/project/$WORKDIR/py2_result.txt
        echo  $PY3_RESULT > $HOME/project/$WORKDIR/py3_result.txt
-       if [ $PY2_RESULT	-ne 0 -o $PY3_RESULT -ne 0]; then
+       if [ $PY2_RESULT	-ne 0 -o $PY3_RESULT -ne 0 ]; then
          exit 1
        fi
   - &upload_cdtime
