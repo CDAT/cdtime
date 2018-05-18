@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 PKG_NAME=cdtime
 USER=cdat
+VERSION=3.0
 export PATH="$HOME/miniconda/bin:$PATH"
 echo "Trying to upload conda"
 if [ $(uname) == "Linux" ]; then
