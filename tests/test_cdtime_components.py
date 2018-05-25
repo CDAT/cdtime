@@ -52,6 +52,24 @@ class CDTIMETest(unittest.TestCase):
         res = cdtime.comptime(2000,1,1,0)<cdtime.comptime(2000,1,1,1)
         self.assertTrue(res)
 
+        res = cdtime.comptime(2000)<cdtime.reltime(2,"days since 2000")
+        self.assertTrue(res)
+
+        res = cdtime.comptime(2000)>cdtime.reltime(2,"days since 1990")
+        self.assertTrue(res)
+
+        res = cdtime.comptime(2000)==cdtime.reltime(0,"days since 2000")
+        self.assertTrue(res)
+
+        res = cdtime.reltime(2,"days since 2000")>cdtime.comptime(2000)
+        self.assertTrue(res)
+
+        res = cdtime.reltime(2,"days since 2000")<cdtime.comptime(2000,1,4)
+        self.assertTrue(res)
+
+        res = cdtime.reltime(2,"days since 2000") == cdtime.comptime(2000,1,3)
+        self.assertTrue(res)
+
 if __name__ == '__main__':
     unittest.main()
 
