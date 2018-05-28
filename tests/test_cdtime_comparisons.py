@@ -27,6 +27,11 @@ class CDTimeComparisons(unittest.TestCase):
         self.assertTrue(bigTransComp == self.bigComp)
         bigTransRel = self.bigComp.torel("days since 2020")
         self.assertTrue(bigTransRel == self.bigRel)
+        #bigTime = cdtime.comptime(3000)
+        #smallTime= cdtime.reltime(2,"{} since 2000".format('years'))
+        #pdb.set_trace()
+        #self.assertTrue(smallTime<bigTime)
+
 
 if __name__ == '__main__':
    unittest.main()

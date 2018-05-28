@@ -42,4 +42,4 @@ echo "Building and uploading now"
 #
 conda install conda-build
 conda build -c cdat/label/unstable -c cdat/label/nightly -c conda-forge  ${PKG_NAME}  
-anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l nightly $CONDA_BLD_PATH/$OS/$PKG_NAME*_0.tar.bz2 --force
+anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l ${LABEL} $CONDA_BLD_PATH/$OS/$PKG_NAME*.tar.bz2 --force
