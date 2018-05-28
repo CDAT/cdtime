@@ -20,7 +20,7 @@ setup (name = "cdtime",
        include_dirs = ['Include', 'Include/py3c'] + cdat_info.cdunif_include_directories,
        ext_modules = [Extension('cdtime', 
                        ['Src/cdtimemodule.c'],
-                       extra_compile_args = [ "-g","-O0"],
+                       extra_compile_args = [ "-fPIC", "-g","-O0"],
                        library_dirs = cdat_info.cdunif_library_directories,
                        libraries = cdat_info.cdunif_libraries)
        ]

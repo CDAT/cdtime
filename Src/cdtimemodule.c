@@ -198,7 +198,7 @@ reltime_torel(PyCdReltimeObject *self, char *outunits, cdCalenType calendar) {
     return (PyObject *) newreltimeobject(outTime, outunits);
 }
 
-static PyObject *
+static int
 reltime_cmp2(PyCdReltimeObject *self, PyObject *other, cdCalenType calendar) {
     int saveCalendar;
     int comparison;
@@ -207,9 +207,10 @@ reltime_cmp2(PyCdReltimeObject *self, PyObject *other, cdCalenType calendar) {
     /* The compare is done by the module methods, which
      get the value of the calendar from "DefaultCalendar",
      so temporarily override this. */
-
-    saveCalendar = GET_CALENDAR;
-    SET_CALENDAR(calendar);
+//    saveCalendar = GET_CALENDAR;
+//    SET_CALENDAR(calendar);
+    //saveCalendar = calendar;
+    calendar = GET_CALENDAR;
 
     if (is_comptimeobject(other)) {
         /* Coerce comptime to reltime */
@@ -222,7 +223,6 @@ reltime_cmp2(PyCdReltimeObject *self, PyObject *other, cdCalenType calendar) {
     }
 
     //#define VALCMP(a,b) ((a)<(b)?-1:(b)<(a)?1:0)
-
     if (PyCdReltime_Compare(self, (PyObject *) otherReltime, Py_EQ) == Py_True) {
         comparison = 0;
         Py_XDECREF(otherReltime);
@@ -233,8 +233,9 @@ reltime_cmp2(PyCdReltimeObject *self, PyObject *other, cdCalenType calendar) {
     } else {
         comparison = 1;
     }
-    SET_CALENDAR(saveCalendar);
-    return Py_BuildValue("i", comparison);
+    // SET_CALENDAR(saveCalendar);
+    // return Py_BuildValue("i", comparison);
+    return(comparison);
 
 }
 #ifdef PYTHON2
@@ -378,7 +379,7 @@ comptime_tocomp(PyCdComptimeObject *self, cdCalenType calendar) {
     return (PyObject *) newcomptimeobject(self->year, self->month, self->day,
             self->hour, self->minute, self->second);
 }
-static PyObject *
+static int
 comptime_cmp2(PyCdComptimeObject *self, PyObject *other, cdCalenType calendar) {
     int saveCalendar;
     int comparison;
@@ -386,9 +387,10 @@ comptime_cmp2(PyCdComptimeObject *self, PyObject *other, cdCalenType calendar) {
     /* The comparisons are done by the module functions, which
      get the calendar from the value of "DefaultCalendar", so
      set this temporarily */
-    saveCalendar = GET_CALENDAR;
-    SET_CALENDAR(calendar);
-
+//    saveCalendar = GET_CALENDAR;
+//    SET_CALENDAR(calendar);
+    //saveCalendar = calendar;
+    calendar = GET_CALENDAR;
     if (PyCdComptime_Compare(self, other, Py_EQ) == Py_True) {
         comparison = 0;
     } else if (PyCdComptime_Compare(self, other, Py_LT) == Py_True) {
@@ -397,8 +399,9 @@ comptime_cmp2(PyCdComptimeObject *self, PyObject *other, cdCalenType calendar) {
         comparison = 1;
     }
 
-    SET_CALENDAR(saveCalendar);
-    return Py_BuildValue("i", comparison);
+    //SET_CALENDAR(saveCalendar);
+    // return Py_BuildValue("i", comparison);
+    return(comparison);
 }
 
 #ifdef Python2
@@ -508,11 +511,10 @@ PyCdReltime_Cmp(PyCdReltimeObject *self, PyObject *args) {
     PyObject *other;
 
     calendar = GET_CALENDAR;
-
     if (!PyArg_ParseTuple(args, "O|i", &other, &calendar))
         return NULL;
+    return Py_BuildValue("i", reltime_cmp2(self, other, calendar));
 
-    return reltime_cmp2(self, other, calendar);
 }
 
 static struct PyMethodDef reltime_instance_methods[] = { /* instance methods */
@@ -600,8 +602,7 @@ PyCdComptime_Cmp(PyCdComptimeObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O|i", &other, &calendar))
         return NULL;
 
-    return comptime_cmp2(self, other, calendar);
-
+    return Py_BuildValue("i",comptime_cmp2(self, other, calendar));
 }
 
 static struct PyMethodDef comptime_instance_methods[] = { /* instance methods */
@@ -992,7 +993,11 @@ sizeof(PyCdReltimeObject), /* tp_basicsize */
 (printfunc) PyCdReltime_Print, /* tp_print    "print x"     */
 0, /* tp_getattr  "x.attr"      */
 0, /* tp_setattr  "x.attr=v"    */
-0, /* tp_compare  "x > y"       */
+#if IS_PY3 == 1
+0, /* tp_compare */
+#else
+(cmpfunc) reltime_cmp2, /* tp_compare  "x > y"       */
+#endif
 (reprfunc) PyCdReltime_Repr, /* tp_repr     `x`, print x  */
 
 /* type categories */
@@ -1030,7 +1035,11 @@ sizeof(PyCdComptimeObject), /* tp_basicsize */
 (printfunc) PyCdComptime_Print, /* tp_print    "print x"     */
 0, /* tp_getattr  "x.attr"      */
 0, /* tp_setattr  "x.attr=v"    */
-0, /* tp_compare  "x > y"       */
+#if IS_PY3 == 1
+0, /* tp_compare */
+#else
+(cmpfunc) comptime_cmp2, /* tp_compare  "x > y"       */
+#endif
 (reprfunc) PyCdComptime_Repr, /* tp_repr     `x`, print x  */
 
 /* type categories */
@@ -1163,9 +1172,11 @@ PyCdtime_Compare(PyObject *self, PyObject *args) { /* on "x = cdtime.cmp()" */
         return NULL;
 
     if (is_reltimeobject(t1)) {
-        return reltime_cmp2((PyCdReltimeObject *) t1, t2, calendar);
+        return Py_BuildValue("i", reltime_cmp2((PyCdReltimeObject *) t1,
+                t2, calendar));
     } else if (is_comptimeobject(t1)) {
-        return comptime_cmp2((PyCdComptimeObject *) t1, t2, calendar);
+        return Py_BuildValue("i", comptime_cmp2((PyCdComptimeObject *) t1,
+                t2, calendar));
     } else
         onError("Argument is not a time");
 }
