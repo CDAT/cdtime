@@ -1,7 +1,51 @@
 import unittest
 import cdtime
+import sys
 
 class CDTIMETest(unittest.TestCase):
+    def less(self, a, b, skipPy2=False):
+        print("Testing",a,b,"for less")
+        if not skipPy2 or sys.version_info.major>2:
+            self.assertTrue(a<b)
+            self.assertFalse(b<a)
+        self.assertTrue(a.__lt__(b))
+        self.assertFalse(b.__lt__(a))
+        self.assertFalse(a<a)
+        self.assertFalse(a.__lt__(a))
+    def greater(self, a, b, skipPy2=False):
+        print("Testing",a,b,"for greater")
+        if not skipPy2 or sys.version_info.major>2:
+            self.assertTrue(a>b)
+            self.assertFalse(b>a)
+        self.assertTrue(a.__gt__(b))
+        self.assertFalse(b.__gt__(a))
+        self.assertFalse(a>a)
+        self.assertFalse(a.__gt__(a))
+    def less_equal(self, a, b, skipPy2=False):
+        print("Testing",a,b,"for less equal")
+        if not skipPy2 or sys.version_info.major>2:
+            self.assertTrue(a<=b)
+            self.assertFalse(b<=a)
+        self.assertTrue(a.__le__(b))
+        self.assertFalse(b.__le__(a))
+        self.assertTrue(a<=a)
+        self.assertTrue(a.__le__(a))
+    def greater_equal(self, a, b, skipPy2=False):
+        print("Testing",a,b,"for greater equal")
+        if not skipPy2 or sys.version_info.major>2:
+            self.assertTrue(a>=b)
+            self.assertFalse(b>=a)
+        self.assertTrue(a.__ge__(b))
+        self.assertFalse(b.__ge__(a))
+        self.assertTrue(a>=a)
+        self.assertTrue(a.__ge__(a))
+
+    def equal(self, a, b):
+        print("Testing",a,b,"for equal")
+        self.assertTrue(a==b)
+        self.assertTrue(a.__eq__(b))
+        self.assertFalse(a!=b)
+        self.assertFalse(a.__ne__(b))
 
     def testWrongUnits(self):
         try:
@@ -20,6 +64,54 @@ class CDTIMETest(unittest.TestCase):
         tc.second = value
         value = 4.
         tc.second = value
+
+    def testCdtimeCompCmp(self):
+        # Component Time
+        a = cdtime.comptime(2000)
+        b = cdtime.comptime(2001)
+        self.less(a,b)
+        self.less_equal(a,b)
+        self.greater(b,a)
+        self.greater_equal(b,a)
+        self.equal(a,a)
+
+    def testCdtimeRelCmp(self):
+        # Reltime
+        for units in ["years","months","days","minutes","seconds"]:
+            a = cdtime.reltime(1,"{} since 2000".format(units))
+            b = cdtime.reltime(2,"{} since 2000".format(units))
+            self.less(a,b)
+            self.less_equal(a,b)
+            self.greater(b,a)
+            self.greater_equal(b,a)
+            self.equal(a,a)
+            
+    #
+    # These test are not allowed in python 2 
+    # class addresses cannot be compared this way.
+    #
+    def testCdtimeCompRelCmp(self):
+        # Comp and rel
+        a = cdtime.comptime(2000)
+        for units in ["years","months","days","minutes","seconds"]:
+            b = cdtime.reltime(2,"{} since 2000".format(units))
+            self.less(a,b)
+            self.less_equal(a,b)
+            self.greater(b,a)
+            self.greater_equal(b,a)
+            self.equal(a,a)
+
+    def testCdtimeRelCompCmp(self):
+        # Rel and comp
+        b = cdtime.comptime(3000)
+        for units in ["years", "months", "days","minutes","seconds"]:
+            a = cdtime.reltime(2, "{} since 2000".format(units))
+            self.less(a, b, True)
+            self.less_equal(a, b, True)
+            self.greater(b, a, True)
+            self.greater_equal(b, a, True)
+            self.equal(a, a)
+
 
 if __name__ == '__main__':
     unittest.main()
