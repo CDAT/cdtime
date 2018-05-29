@@ -111,30 +111,7 @@ class CDTIMETest(unittest.TestCase):
             self.greater(b, a, True)
             self.greater_equal(b, a, True)
             self.equal(a, a)
-    # Comp and rel
-    def testCdtimeLTCompCmp(self):
-        res = cdtime.comptime(2000)<cdtime.reltime(2,"days since 2000")
-        self.assertTrue(res)
 
-    def dtestCdtimeGTCompCmp(self):
-        res = cdtime.comptime(2000)>cdtime.reltime(2,"days since 1990")
-        self.assertTrue(res)
-
-    def dtestCdtimeEQCompCmp(self):
-        res = cdtime.comptime(2000)==cdtime.reltime(0,"days since 2000")
-        self.assertTrue(res)
-
-    def dtestCdtimeGTRelCmp(self):
-        res = cdtime.reltime(2,"days since 2000")>cdtime.comptime(2000)
-        self.assertTrue(res)
-
-    def dtestCdtimeLTRelCmp(self):
-        res = cdtime.reltime(2,"days since 2000")<cdtime.comptime(2000,1,4)
-        self.assertTrue(res)
-
-    def dtestCdtimeEQRelCmp(self):
-        res = cdtime.reltime(2,"days since 2000") == cdtime.comptime(2000,1,3)
-        self.assertTrue(res)
 
 if __name__ == '__main__':
     unittest.main()

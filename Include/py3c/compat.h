@@ -9,6 +9,7 @@
 #if PY_MAJOR_VERSION >= 3
 
 /***** Python 3 *****/
+
 #define IS_PY3 1
 
 /* Strings */
