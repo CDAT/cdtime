@@ -78,6 +78,8 @@ aliases:
     name: upload_cdtime
     command: |
        export PATH=$HOME/project/$WORKDIR/miniconda/bin:$PATH
+       # force loading conda gcc
+       source activate py3
        export LABEL="nightly";
        # Retrieve results
        PY2_RESULT=$(cat $HOME/project/$WORKDIR/py2_result.txt) 
