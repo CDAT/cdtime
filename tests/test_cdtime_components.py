@@ -1,36 +1,41 @@
 import unittest
 import cdtime
+import sys
 
 class CDTIMETest(unittest.TestCase):
-    def less(self, a, b):
+    def less(self, a, b, skipPy2=False):
         print("Testing",a,b,"for less")
-        self.assertTrue(a<b)
+        if not skipPy2 or sys.version_info.major>2:
+            self.assertTrue(a<b)
+            self.assertFalse(b<a)
         self.assertTrue(a.__lt__(b))
-        self.assertFalse(b<a)
         self.assertFalse(b.__lt__(a))
         self.assertFalse(a<a)
         self.assertFalse(a.__lt__(a))
-    def greater(self, a, b):
+    def greater(self, a, b, skipPy2=False):
         print("Testing",a,b,"for greater")
-        self.assertTrue(a>b)
+        if not skipPy2 or sys.version_info.major>2:
+            self.assertTrue(a>b)
+            self.assertFalse(b>a)
         self.assertTrue(a.__gt__(b))
-        self.assertFalse(b>a)
         self.assertFalse(b.__gt__(a))
         self.assertFalse(a>a)
         self.assertFalse(a.__gt__(a))
-    def less_equal(self, a, b):
+    def less_equal(self, a, b, skipPy2=False):
         print("Testing",a,b,"for less equal")
-        self.assertTrue(a<=b)
+        if not skipPy2 or sys.version_info.major>2:
+            self.assertTrue(a<=b)
+            self.assertFalse(b<=a)
         self.assertTrue(a.__le__(b))
-        self.assertFalse(b<=a)
         self.assertFalse(b.__le__(a))
         self.assertTrue(a<=a)
         self.assertTrue(a.__le__(a))
-    def greater_equal(self, a, b):
+    def greater_equal(self, a, b, skipPy2=False):
         print("Testing",a,b,"for greater equal")
-        self.assertTrue(a>=b)
+        if not skipPy2 or sys.version_info.major>2:
+            self.assertTrue(a>=b)
+            self.assertFalse(b>=a)
         self.assertTrue(a.__ge__(b))
-        self.assertFalse(b>=a)
         self.assertFalse(b.__ge__(a))
         self.assertTrue(a>=a)
         self.assertTrue(a.__ge__(a))
@@ -131,7 +136,6 @@ class CDTIMETest(unittest.TestCase):
     def dtestCdtimeEQRelCmp(self):
         res = cdtime.reltime(2,"days since 2000") == cdtime.comptime(2000,1,3)
         self.assertTrue(res)
-
 if __name__ == '__main__':
     unittest.main()
 
