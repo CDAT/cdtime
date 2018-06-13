@@ -65,7 +65,8 @@ class CDTIMETest(unittest.TestCase):
         value = 4.
         tc.second = value
 
-    def testCdtimeCompCmp(self):
+    def setup(self):
+
         # Component Time
         a = cdtime.comptime(2000)
         b = cdtime.comptime(2001)
@@ -90,7 +91,7 @@ class CDTIMETest(unittest.TestCase):
     # These test are not allowed in python 2 
     # class addresses cannot be compared this way.
     #
-    def testCdtimeCompRelCmp(self):
+    def dtestCdtimeCompRelLTCmp(self):
         # Comp and rel
         a = cdtime.comptime(2000)
         for units in ["years","months","days","minutes","seconds"]:
@@ -101,18 +102,40 @@ class CDTIMETest(unittest.TestCase):
             self.greater_equal(b,a)
             self.equal(a,a)
 
-    def testCdtimeRelCompCmp(self):
+    def dtestCdtimeCompRelGTCmp(self):
         # Rel and comp
         b = cdtime.comptime(3000)
-        for units in ["years", "months", "days","minutes","seconds"]:
-            a = cdtime.reltime(2, "{} since 2000".format(units))
-            self.less(a, b, True)
-            self.less_equal(a, b, True)
-            self.greater(b, a, True)
-            self.greater_equal(b, a, True)
-            self.equal(a, a)
+        for units in ["years","months","days","minutes","seconds"]:
+            a = cdtime.reltime(2,"{} since 2000".format(units))
+            self.less(a,b)
+            self.less_equal(a,b)
+            self.greater(b,a)
+            self.greater_equal(b,a)
+            self.equal(a,a)
+    # Comp and rel
+    def dtestCdtimeLTCompCmp(self):
+        res = cdtime.comptime(2000)<cdtime.reltime(2,"days since 2000")
+        self.assertTrue(res)
 
+    def dtestCdtimeGTCompCmp(self):
+        res = cdtime.comptime(2000)>cdtime.reltime(2,"days since 1990")
+        self.assertTrue(res)
 
+    def dtestCdtimeEQCompCmp(self):
+        res = cdtime.comptime(2000)==cdtime.reltime(0,"days since 2000")
+        self.assertTrue(res)
+
+    def dtestCdtimeGTRelCmp(self):
+        res = cdtime.reltime(2,"days since 2000")>cdtime.comptime(2000)
+        self.assertTrue(res)
+
+    def dtestCdtimeLTRelCmp(self):
+        res = cdtime.reltime(2,"days since 2000")<cdtime.comptime(2000,1,4)
+        self.assertTrue(res)
+
+    def dtestCdtimeEQRelCmp(self):
+        res = cdtime.reltime(2,"days since 2000") == cdtime.comptime(2000,1,3)
+        self.assertTrue(res)
 if __name__ == '__main__':
     unittest.main()
 
