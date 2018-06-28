@@ -32,7 +32,6 @@ class CDTimeComparisons(unittest.TestCase):
         #pdb.set_trace()
         #self.assertTrue(smallTime<bigTime)
 
-
 if __name__ == '__main__':
    unittest.main()
 
