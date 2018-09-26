@@ -10,99 +10,78 @@ aliases:
     name: setup_miniconda
     command: |
       mkdir -p workspace
-      git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
-      ls workspace/cdat
-      # following will install miniconda3 under $WORKDIR/miniconda/bin
+      git clone -b validateNightly --depth 1 git@github.com:CDAT/cdat workspace/cdat
       python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
       
   - &create_conda_env
     name: create_conda_env
+    environment:
+       PKGS: "numpy cdat_info libcdms libdrs_f testsrunner"
+       CHANNELS: "-c cdat/label/unstable -c cdat/label/nightly -c conda-forge -c cdat"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
        conda config --set anaconda_upload no
-       conda create -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge numpy cdat_info libcdms libdrs_f flake8 nose "python>3"
-       conda create -n py2 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge cdat_info libcdms libdrs_f nose flake8 numpy "python<3"
-       if [ $(uname) == "Linux" ]; then
-           conda install -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge gcc_linux-64
-           conda install -n py2 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge gcc_linux-64
+       if [[ $PY_VER = "py2" ]]; then
+          conda create -n $PY_VER $CHANNELS $PKGS 'python<3' $COMPILERS
        else
-           conda install -n py3 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge gcc
-           conda install -n py2 -c cdat/label/unstable -c cdat/label/nightly -c conda-forge gcc
+          conda create -n $PY_VER $CHANNELS $PKGS 'python>3' $COMPILERS
        fi
-
-
+       source activate $PY_VER
+       conda list
+       source deactivate
+       
   - &setup_cdtime
     name: setup_cdtime
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       export UVCDAT_ANONYMOUS_LOG=False
-       source activate py3
+       export CDAT_ANONYMOUS_LOG=False
+       source activate $PY_VER
        if [ $(uname) == "Linux" ]; then
            LDSHARED="$CC -shared -pthread" python setup.py install
        else
            python setup.py install
        fi
-       source activate py2
-       rm -rf build
-       if [ $(uname) == "Linux" ]; then
-           LDSHARED="$CC -shared -pthread" python setup.py install
-       else
-           python setup.py install
-       fi
+       source deactivate
 
   - &run_cdtime_tests
     name: run_cdtime_tests
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
-       export UVCDAT_ANONYMOUS_LOG=False
+       export CDAT_ANONYMOUS_LOG=False
        set -e
-       source activate py2
-       python run_tests.py -v2 
-       PY2_RESULT=$?
-       echo "*** py2 test result: "${PY2_RESULT}
-       source activate py3
-       python run_tests.py -v2 
-       PY3_RESULT=$?
-       echo "*** py3 test result: "${PY3_RESULT}
-       #
-       # save results to file so that next step can retreive them
-       #
-       echo  $PY2_RESULT > $HOME/project/$WORKDIR/py2_result.txt
-       echo  $PY3_RESULT > $HOME/project/$WORKDIR/py3_result.txt
-       if [ $PY2_RESULT	-ne 0 -o $PY3_RESULT -ne 0 ]; then
-         exit 1
-       fi
+       source activate $PY_VER
+       python run_tests.py -v2
+       RESULT=$?
+       echo "*** $PY_VER test result: "${RESULT}
+       exit $RESULT
+
   - &upload_cdtime
     name: upload_cdtime
     command: |
        export PATH=$HOME/project/$WORKDIR/miniconda/bin:$PATH
        # force loading conda gcc
-       source activate py3
+       source activate $PY_VER
        export LABEL="nightly";
-       # Retrieve results
-       PY2_RESULT=$(cat $HOME/project/$WORKDIR/py2_result.txt) 
-       PY3_RESULT=$(cat $HOME/project/$WORKDIR/py3_result.txt) 
-       echo "*** CIRCLE BRANCH: "${CIRCLE_BRANCH}
-       echo "*** PY2_RESULT: "${PY2_RESULT}
-       echo "*** PY3_RESULT: "${PY3_RESULT}
-       if [ $PY2_RESULT -eq 0 -a $PY3_RESULT -eq 0 -a $CIRCLE_BRANCH == "master" ]; then conda install -n root conda-build anaconda-client ; fi
-       if [ $PY2_RESULT -eq 0 -a $PY3_RESULT -eq 0 -a $CIRCLE_BRANCH == "master" ]; then bash ./ci-support/conda_upload.sh ; fi
-       if [ $PY2_RESULT -eq 0 -a $PY3_RESULT -eq 0 -a $CIRCLE_BRANCH != "master" ]; then
+       if [[ $CIRCLE_BRANCH == "master" ]]; then
+           conda install -n root conda-build anaconda-client
+           bash ./ci-support/conda_upload.sh
+       else
            export LABEL="unstable";
            echo "NOTE: upload LABEL="${LABEL}
            conda install -n root conda-build anaconda-client;
            bash ./ci-support/conda_upload.sh;
        fi
 
-
 jobs:
-  macos_cdtime:
+  macos_cdtime_py2:
     macos:
       xcode: "9.2.0"
     environment:
-      WORKDIR: "workspace/test_macos_cdtime"
+      WORKDIR: "test_macos_cdtime_py2"
+      PY_VER: "py2"
+      COMPILERS: "gcc"
     steps:
       - checkout
       - run: *setup_miniconda
@@ -110,14 +89,35 @@ jobs:
       - run: *setup_cdtime
       - run: *run_cdtime_tests
       - run: *upload_cdtime
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
 
-  linux_cdtime:
+  macos_cdtime_py3:
+    macos:
+      xcode: "9.2.0"
+    environment:
+      WORKDIR: "test_macos_cdtime_py3"
+      PY_VER: "py3"
+      COMPILERS: "gcc"
+    steps:
+      - checkout
+      - run: *setup_miniconda
+      - run: *create_conda_env
+      - run: *setup_cdtime
+      - run: *run_cdtime_tests
+      - run: *upload_cdtime
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+
+  linux_cdtime_py2:
     machine:
       image: circleci/classic:latest
     environment:
-      WORKDIR: "workspace/test_linux_cdtime"
-      PY2_RESULT: 1
-      PY3_RESULT: 1
+      WORKDIR: "test_linux_cdtime_py2"
+      PY_VER: "py2"
+      COMPILERS: "gcc_linux-64"
     steps:
       - checkout
       - run: *setup_miniconda
@@ -125,12 +125,40 @@ jobs:
       - run: *setup_cdtime
       - run: *run_cdtime_tests
       - run: *upload_cdtime
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
+
+  linux_cdtime_py3:
+    machine:
+      image: circleci/classic:latest
+    environment:
+      WORKDIR: "test_linux_cdtime_py3"
+      PY_VER: "py3"
+      COMPILERS: "gcc_linux-64"
+    steps:
+      - checkout
+      - run: *setup_miniconda
+      - run: *create_conda_env
+      - run: *setup_cdtime
+      - run: *run_cdtime_tests
+      - run: *upload_cdtime
+      - store_artifacts:
+          path: tests_html
+          destination: tests_html
 
 workflows:
   version: 2
   cdtime_test:
     jobs:
-      - macos_cdtime
-      - linux_cdtime
+      - macos_cdtime_py2
+      - macos_cdtime_py3:
+           requires:
+              - macos_cdtime_py2
+      - linux_cdtime_py2
+      - linux_cdtime_py3:
+           requires:
+              - linux_cdtime_py2
+
 
        
