@@ -1,0 +1,35 @@
+package:
+    name: cdtime
+    version: @VERSION@
+
+source:
+    git_rev: @UVCDAT_BRANCH@
+    git_url: git://github.com/CDAT/cdtime.git
+
+build:
+  number: @BUILD_NUMBER@
+ 
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('fortran') }}
+  host:
+    - python {{ python }}
+    - setuptools
+    - libcdms
+    - numpy 
+    - cdat_info
+    - libdrs_f
+  run:
+    - python {{ python }}
+    - setuptools
+    - libcdms
+    - cdat_info
+    - libdrs_f
+    - numpy  
+
+about:
+    home:  http://gitub.com/CDAT/cdtime
+    license: '3-Clause BSD'
+    license_file: 'bsd-3-clause.txt'
+
