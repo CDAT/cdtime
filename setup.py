@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-from distutils.core import setup, Extension
 import os
 import sys
+from numpy.distutils.core import setup, Extension
+
 target_prefix = sys.prefix
 for i in range(len(sys.argv)):
     a = sys.argv[i]
@@ -14,6 +15,7 @@ for i in range(len(sys.argv)):
 sys.path.insert(0, os.path.join(target_prefix, 'lib', 'python%i.%i' % sys.version_info[:2], 'site-packages'))
 import cdat_info
 
+libs_pth = os.path.join(sys.prefix, "lib")
 setup(name="cdtime",
       description="Time utilities",
       version='3.2',
@@ -23,8 +25,9 @@ setup(name="cdtime",
       include_dirs=['Include', 'Include/py3c'] + cdat_info.cdunif_include_directories,
       ext_modules=[Extension('cdtime._cdtime',
                              ['Src/cdtimemodule.c'],
-                             extra_compile_args=["-g", "-O0"],
                              library_dirs=cdat_info.cdunif_library_directories,
-                             libraries=cdat_info.cdunif_libraries)
+                             libraries=cdat_info.cdunif_libraries,
+                             runtime_library_dirs=[libs_pth],
+                             extra_compile_args=["-L%s" % libs_pth, "-g", "-O0"],)
                    ]
       )
