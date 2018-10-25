@@ -8,6 +8,21 @@ class CDTimeComparisons(unittest.TestCase):
         self.smallRel = cdtime.reltime(0,"days since 2000")
         self.bigRel = cdtime.reltime(0,"days since 2020")
 
+    def testConvertc2r(self):
+        self.assertEqual(cdtime.c2r(self.bigComp,"days since 2020"), self.bigRel)
+
+    def testCmps2c(self):
+        self.assertEqual(cdtime.s2c("2020-1-1"), self.bigRel)
+
+    def testCmps2r(self):
+        self.assertEqual(cdtime.s2r("2020-1-1","days since 2020"), self.bigRel)
+
+    def testConvert2c(self):
+        self.assertEqual(cdtime.c2r(self.bigComp,"days since 2020"), self.bigRel)
+
+    def testConvert2r(self):
+        self.assertEqual(cdtime.r2r(self.bigRel,"days since 2020"), self.bigRel)
+
     def testCmpComp(self):
         self.assertEqual(self.smallComp.cmp(self.bigComp),-1)
         self.assertEqual(self.smallComp.cmp(self.bigRel),-1)
