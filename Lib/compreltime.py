@@ -104,8 +104,8 @@ def componenttime(year, month=1, day=1, hour=0, minute=0, second=0):
             minute: default = 0
             second: default = 0
 
-        Retuns
-        ------
+        Returns
+        -------
             Component Time class object
 
         ::
@@ -135,8 +135,8 @@ def comptime(year, month=1, day=1, hour=0, minute=0, second=0):
             minute: default = 0
             second: default = 0
 
-        Retuns
-        ------
+        Returns
+        -------
             Component Time class object
 
         ::
@@ -213,8 +213,8 @@ def relativetime(value, units):
             values:  number (can be floating point)
             units:  [seconds,hours,days,yeears] since [year]
 
-        Retuns
-        ------
+        Returns
+        -------
             Relative Time class object
 
         ::
@@ -237,8 +237,8 @@ def reltime(value, units):
             values:  number (can be floating point)
             units:  [seconds,hours,days,yeears] since [year]
 
-        Retuns
-        ------
+        Returns
+        -------
             Relative Time class object
 
         ::
