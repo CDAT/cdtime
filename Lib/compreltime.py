@@ -1,5 +1,5 @@
 
-import _cdtime
+from . import _cdtime
 
 error = _cdtime.error
 StandardCalendar = _cdtime.StandardCalendar
