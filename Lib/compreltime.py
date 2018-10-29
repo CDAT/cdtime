@@ -39,7 +39,7 @@ def c2r(ctype, newunits):
         ----------
 
             ctype:  component time class object
-            caltype: None
+            newunits: [seconds,hours,days,yeears] since [year]
 
         Returns
         -------
