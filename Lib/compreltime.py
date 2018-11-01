@@ -1,30 +1,34 @@
 
 from . import _cdtime
 
-error = _cdtime.error
-StandardCalendar = _cdtime.StandardCalendar
-GregorianCalendar = _cdtime.GregorianCalendar
-JulianCalendar = _cdtime.JulianCalendar
-MixedCalendar = _cdtime.MixedCalendar
-NoLeapCalendar = _cdtime.NoLeapCalendar
 Calendar360 = _cdtime.Calendar360
 ClimCalendar = _cdtime.ClimCalendar
 ClimLeapCalendar = _cdtime.ClimLeapCalendar
-DefaultCalendar = _cdtime.DefaultCalendar
-Second = _cdtime.Second
-Minutes = _cdtime.Minutes
-Minute = _cdtime.Minute
-Hour = _cdtime.Hour
-Days = _cdtime.Days
 Day = _cdtime.Day
-Weeks = _cdtime.Weeks
-Week = _cdtime.Week
-Months = _cdtime.Months
+Days = _cdtime.Days
+DefaultCalendar = _cdtime.DefaultCalendar
+GregorianCalendar = _cdtime.GregorianCalendar
+Hour = _cdtime.Hour
+Hours = _cdtime.Hours
+JulianCalendar = _cdtime.JulianCalendar
+Minute = _cdtime.Minute
+Minutes = _cdtime.Minutes
+MixedCalendar = _cdtime.MixedCalendar
 Month = _cdtime.Month
-Seasons = _cdtime.Seasons
+Months = _cdtime.Months
+NoLeapCalendar = _cdtime.NoLeapCalendar
 Season = _cdtime.Season
-Years = _cdtime.Years
+Seasons = _cdtime.Seasons
+Second = _cdtime.Second
+Seconds = _cdtime.Seconds
+StandardCalendar = _cdtime.StandardCalendar
+Week = _cdtime.Week
+Weeks = _cdtime.Weeks
 Year = _cdtime.Year
+Years = _cdtime.Years
+
+
+error = _cdtime.error
 
 
 def abstime(value, units):
