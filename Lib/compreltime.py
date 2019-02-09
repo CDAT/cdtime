@@ -51,7 +51,7 @@ def c2r(ctype, newunits):
            Relative time class object.
         ::
 
-            >>> myComponentTime = cdtime.comptime(2020,01,10)
+            >>> myComponentTime = cdtime.comptime(2020,1,10)
             >>> myRelativeTime = cdtime.c2r(myComponentTime,"days since 2020")
             >>> myRelativeTime
             9.00 days since 2020
@@ -81,8 +81,8 @@ def compare(cdtime1, cdtime2, calendar=_cdtime.DefaultCalendar):
             1: if time1 > time2
         ::
 
-            >>> myComponentTime = cdtime.comptime(2020,01,10)
-            >>> myRelativeTime = cdtime.relativetime(11 "days since 2020")
+            >>> myComponentTime = cdtime.comptime(2020,1,10)
+            >>> myRelativeTime = cdtime.relativetime(11,"days since 2020")
             >>> cdtime.cmp(myComponentTime, myRelativeTime, cdtime.GregorianCalendar)
             >>> cdtime.compare(myRelativeTime, myComponentTime, cdtime.GregorianCalendar)
             1
