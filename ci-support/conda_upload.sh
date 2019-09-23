@@ -17,7 +17,6 @@ else
     echo "Mac OS"
     OS=osx-64
 fi
-BUILD_NUMBER=1
 mkdir ~/conda-bld
 conda config --set anaconda_upload no
 export CONDA_BLD_PATH=${HOME}/conda-bld
@@ -33,7 +32,7 @@ if [[ -d cdtime ]]; then
 fi
 ln -s ../recipe cdtime
 export BRANCH=${CIRCLE_BRANCH}
-python ./prep_for_build.py  -b ${BRANCH} -B ${BUILD_NUMBER}
+python ./prep_for_build.py  -b ${BRANCH}
 
 conda build ${PKG_NAME} -c cdat/label/unstable -c cdat/label/nightly -c conda-forge  
 anaconda -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL $CONDA_BLD_PATH/$OS/${PKG_NAME}-$VERSION.`date +%Y*`0.tar.bz2 --force
