@@ -64,7 +64,8 @@ aliases:
        # force loading conda gcc
        source activate $PY_VER
        export LABEL="nightly";
-       if [[ $CIRCLE_BRANCH == "master" ]]; then
+       if [[ $CIRCLE_BRANCH == "rebuild_3.1.2" ]]; then
+       # if [[ $CIRCLE_BRANCH == "master" ]]; then
            conda install -n root conda-build anaconda-client
            bash ./ci-support/conda_upload.sh
        else

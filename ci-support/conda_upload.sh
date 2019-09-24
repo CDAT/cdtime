@@ -17,7 +17,6 @@ else
     echo "Mac OS"
     OS=osx-64
 fi
-
 mkdir ~/conda-bld
 conda config --set anaconda_upload no
 export CONDA_BLD_PATH=${HOME}/conda-bld
