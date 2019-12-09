@@ -101,7 +101,7 @@ jobs:
 
   macos_cdtime_py3:
     macos:
-      xcode: "11.1.0"
+      xcode: "11.3.0"
     environment:
       WORKDIR: "test_macos_cdtime_py3"
       PY_VER: "py3"
