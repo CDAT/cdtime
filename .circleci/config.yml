@@ -45,6 +45,8 @@ aliases:
        if [ $(uname) == "Linux" ]; then
            LDSHARED="$CC -shared -pthread" python setup.py install
        else
+           export CFLAGS="-Wall -g -m64 -pipe -O2  -fPIC $CFLAGS"
+           export CFLAGS="-Wl,-syslibroot / -isysroot / $CFLAGS"
            python setup.py install
        fi
        conda deactivate
