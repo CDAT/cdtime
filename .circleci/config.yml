@@ -112,7 +112,7 @@ jobs:
       - run: *create_conda_env
       - run: *setup_cdtime
       - run: *run_cdtime_tests
-      - run: *upload_cdtime
+      #- run: *upload_cdtime
       - store_artifacts:
           path: tests_html
           destination: tests_html
@@ -156,8 +156,8 @@ workflows:
   version: 2
   cdtime_test:
     jobs:
-      - macos_cdtime_py2
-      #- macos_cdtime_py3:
+      #- macos_cdtime_py2
+      - macos_cdtime_py3
       #     requires:
       #        - macos_cdtime_py2
       #- linux_cdtime_py2
