@@ -30,9 +30,9 @@ aliases:
        else
           conda create -n $PY_VER $CHANNELS $PKGS 'python>=3.7,<3.8' $COMPILERS
        fi
-       source activate $PY_VER
+       conda activate $PY_VER
        conda list
-       source deactivate
+       conda deactivate
        
   - &setup_cdtime
     name: setup_cdtime
@@ -41,13 +41,13 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        export CDAT_ANONYMOUS_LOG=False
-       source activate $PY_VER
+       conda activate $PY_VER
        if [ $(uname) == "Linux" ]; then
            LDSHARED="$CC -shared -pthread" python setup.py install
        else
            python setup.py install
        fi
-       source deactivate
+       conda deactivate
 
   - &run_cdtime_tests
     name: run_cdtime_tests
@@ -57,7 +57,7 @@ aliases:
        conda activate base
        export CDAT_ANONYMOUS_LOG=False
        set -e
-       source activate $PY_VER
+       conda activate $PY_VER
        python run_tests.py -v2
        RESULT=$?
        echo "*** $PY_VER test result: "${RESULT}
@@ -70,7 +70,7 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        # force loading conda gcc
-       source activate $PY_VER
+       conda activate $PY_VER
        export LABEL="nightly";
        if [[ $CIRCLE_BRANCH != "master" ]]; then
            exit 0
