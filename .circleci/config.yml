@@ -24,6 +24,7 @@ aliases:
        conda activate base
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
+       conda --version
        conda config --set anaconda_upload no
        if [[ $PY_VER = "py2" ]]; then
           conda create -n $PY_VER $CHANNELS $PKGS 'python<3' $COMPILERS
