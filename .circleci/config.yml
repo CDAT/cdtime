@@ -16,8 +16,8 @@ aliases:
   - &create_conda_env
     name: create_conda_env
     environment:
-       PKGS: "numpy cdat_info libcdms libdrs_f testsrunner"
-       CHANNELS: "-c cdat/label/unstable -c cdat/label/nightly -c conda-forge -c cdat"
+       PKGS: "numpy cdat_info libcdms libdrs_f testsrunner 'libnetcdf=4.6.2'"
+       CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
        export PATH=$WORKDIR/miniconda/bin:$PATH
        conda config --set always_yes yes --set changeps1 no
@@ -26,7 +26,7 @@ aliases:
        if [[ $PY_VER = "py2" ]]; then
           conda create -n $PY_VER $CHANNELS $PKGS 'python<3' $COMPILERS
        else
-          conda create -n $PY_VER $CHANNELS $PKGS 'python>3' $COMPILERS
+          conda create -n $PY_VER $CHANNELS $PKGS 'python>=3.7,<3.8' $COMPILERS
        fi
        source activate $PY_VER
        conda list
@@ -64,20 +64,16 @@ aliases:
        # force loading conda gcc
        source activate $PY_VER
        export LABEL="nightly";
-       if [[ $CIRCLE_BRANCH == "master" ]]; then
-           conda install -n root conda-build anaconda-client
-           bash ./ci-support/conda_upload.sh
-       else
-           export LABEL="unstable";
-           echo "NOTE: upload LABEL="${LABEL}
-           conda install -n root conda-build anaconda-client;
-           bash ./ci-support/conda_upload.sh;
+       if [[ $CIRCLE_BRANCH != "master" ]]; then
+           exit 0
        fi
+       conda install -n root conda-build anaconda-client
+       bash ./ci-support/conda_upload.sh
 
 jobs:
   macos_cdtime_py2:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: "test_macos_cdtime_py2"
       PY_VER: "py2"
@@ -94,7 +90,7 @@ jobs:
 
   macos_cdtime_py3:
     macos:
-      xcode: "9.2.0"
+      xcode: "11.1.0"
     environment:
       WORKDIR: "test_macos_cdtime_py3"
       PY_VER: "py3"
