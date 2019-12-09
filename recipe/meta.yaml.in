@@ -14,19 +14,22 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('fortran') }}
   host:
-    - python {{ python }}
+    - python
     - setuptools
     - libcdms
-    - numpy 
-    - cdat_info
+    - numpy
+    - libnetcdf >=4.6.2,<4.6.3.0a0
+    - cdat_info >=8.1.1
     - libdrs_f
+
   run:
-    - python {{ python }}
+    - python
     - setuptools
     - libcdms
-    - cdat_info
+    - libnetcdf >=4.6.2,<4.6.3.0a0
+    - cdat_info >=8.1.1
     - libdrs_f
-    - numpy  
+    - {{ pin_compatible('numpy') }}
 
 about:
     home:  http://gitub.com/CDAT/cdtime
