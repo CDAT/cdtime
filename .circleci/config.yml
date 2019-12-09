@@ -19,7 +19,9 @@ aliases:
        PKGS: "numpy cdat_info libcdms libdrs_f testsrunner 'libnetcdf=4.6.2'"
        CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
+       #export PATH=$WORKDIR/miniconda/bin:$PATH
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
        conda config --set always_yes yes --set changeps1 no
        conda update -y -q conda
        conda config --set anaconda_upload no
@@ -35,7 +37,9 @@ aliases:
   - &setup_cdtime
     name: setup_cdtime
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
+       #export PATH=$WORKDIR/miniconda/bin:$PATH
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
        export CDAT_ANONYMOUS_LOG=False
        source activate $PY_VER
        if [ $(uname) == "Linux" ]; then
@@ -48,7 +52,9 @@ aliases:
   - &run_cdtime_tests
     name: run_cdtime_tests
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
+       #export PATH=$WORKDIR/miniconda/bin:$PATH
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
        export CDAT_ANONYMOUS_LOG=False
        set -e
        source activate $PY_VER
@@ -60,7 +66,9 @@ aliases:
   - &upload_cdtime
     name: upload_cdtime
     command: |
-       export PATH=$HOME/project/$WORKDIR/miniconda/bin:$PATH
+       #export PATH=$HOME/project/$WORKDIR/miniconda/bin:$PATH
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
        # force loading conda gcc
        source activate $PY_VER
        export LABEL="nightly";
@@ -146,12 +154,12 @@ workflows:
   cdtime_test:
     jobs:
       - macos_cdtime_py2
-      - macos_cdtime_py3:
-           requires:
-              - macos_cdtime_py2
-      - linux_cdtime_py2
-      - linux_cdtime_py3:
-           requires:
-              - linux_cdtime_py2
+      #- macos_cdtime_py3:
+      #     requires:
+      #        - macos_cdtime_py2
+      #- linux_cdtime_py2
+      #- linux_cdtime_py3:
+      #     requires:
+      #        - linux_cdtime_py2
 
        
