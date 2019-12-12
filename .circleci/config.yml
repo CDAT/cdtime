@@ -25,14 +25,9 @@ aliases:
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       echo "cat ~/.condarc"
-       cat ~/.condarc
-       #conda create -y -n test_cdtime --use-local -c cdat/label/nightly -c conda-forge cdtime nbformat testsrunner
        # REVISIT python version
-       conda create -y -n test_cdtime --use-local $CHANNELS "python=3.7" $PKGS
-       echo "conda activate test_cdtime"
+       conda create -y -n test_cdtime --use-local $CHANNELS "$PY_VER" $PKGS
        conda activate test_cdtime
-       cd $WORKDIR
        conda list
        echo "python -c 'import cdtime'"
        python -c "import cdtime"
@@ -48,12 +43,55 @@ aliases:
        python run_tests.py -H -v2 -n 2
 
 jobs:
-   linux_cdtime:
+   macos_cdtime_py2:
+      macos:
+         xcode: "11.1.0"
+      environment:
+         WORKDIR: "/Users/distiller/project/workdir"
+         LAST_STABLE: "3.1.2"
+         PY_VER: "python<3"
+      steps:
+         - checkout
+         - run: *setup_miniconda
+         - run: *build_cdtime
+         - run: *setup_run_tests
+         - run: *run_tests
+
+   macos_cdtime_py37:
+      macos:
+         xcode: "11.1.0"
+      environment:
+         WORKDIR: "/Users/distiller/project/workdir"
+         LAST_STABLE: "3.1.2"
+         PY_VER: "python>=3.7,<3.8"
+      steps:
+         - checkout
+         - run: *setup_miniconda
+         - run: *build_cdtime
+         - run: *setup_run_tests
+         - run: *run_tests
+
+   linux_cdtime_py2:
       machine:
          image: circleci/classic:latest
       environment:
          WORKDIR: "/home/circleci/project/workdir"
          LAST_STABLE: "3.1.2"
+         PY_VER: "python<3"
+      steps:
+         - checkout
+         - run: *setup_miniconda
+         - run: *build_cdtime
+         - run: *setup_run_tests
+         - run: *run_tests
+
+   linux_cdtime_py37:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: "/home/circleci/project/workdir"
+         LAST_STABLE: "3.1.2"
+         PY_VER: "python>=3.7,<3.8"
       steps:
          - checkout
          - run: *setup_miniconda
@@ -65,5 +103,8 @@ workflows:
    version: 2
    cdtime:
       jobs:
-         - linux_cdtime
+         - macos_cdtime_py2
+         - macos_cdtime_py37
+         - linux_cdtime_py2
+         - linux_cdtime_py37
 
