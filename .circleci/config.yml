@@ -1,168 +1,69 @@
 version: 2
 
-checkout:
-  post:
-    - ./ci-support/checkout_merge_commit.sh
-        
 aliases:
-
   - &setup_miniconda
     name: setup_miniconda
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly --depth 1 git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
-      
-  - &create_conda_env
-    name: create_conda_env
+       mkdir -p workspace
+       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+       # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
+       python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
+
+  - &build_cdtime
+    name: build_cdtime
+    command: |
+       git clone -b sync_recipe https://github.com/CDAT/conda-recipes.git $WORKDIR/conda-recipes 
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
+       python $WORKDIR/conda-recipes/build_tools/conda_build_upload.py -w $WORKDIR -l $LAST_STABLE -B 0 -p cdtime -b $CIRCLE_BRANCH
+
+  - &setup_run_tests
+    name: setup_run_tests
     environment:
        PKGS: "numpy cdat_info libcdms libdrs_f testsrunner 'libnetcdf=4.6.2'"
        CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
-       #export PATH=$WORKDIR/miniconda/bin:$PATH
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       conda config --set always_yes yes --set changeps1 no
-       conda update -y -q conda
-       conda --version
-       conda config --set anaconda_upload no
-       if [[ $PY_VER = "py2" ]]; then
-          conda create -n $PY_VER $CHANNELS $PKGS 'python<3' $COMPILERS
-       else
-          conda create -n $PY_VER $CHANNELS $PKGS 'python>=3.7,<3.8' $COMPILERS
-       fi
-       conda activate $PY_VER
+       echo "cat ~/.condarc"
+       cat ~/.condarc
+       #conda create -y -n test_cdtime --use-local -c cdat/label/nightly -c conda-forge cdtime nbformat testsrunner
+       # REVISIT python version
+       conda create -y -n test_cdtime --use-local $CHANNELS "python=3.7" $PKGS
+       echo "conda activate test_cdtime"
+       conda activate test_cdtime
+       cd $WORKDIR
        conda list
-       conda deactivate
-       
-  - &setup_cdtime
-    name: setup_cdtime
-    command: |
-       #export PATH=$WORKDIR/miniconda/bin:$PATH
-       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate base
-       export CDAT_ANONYMOUS_LOG=False
-       conda activate $PY_VER
-       if [ $(uname) == "Linux" ]; then
-           LDSHARED="$CC -shared -pthread" python setup.py install
-       else
-           export CFLAGS="-Wall -g -m64 -pipe -O2  -fPIC $CFLAGS"
-           export CFLAGS="-Wl,-syslibroot / -isysroot / $CFLAGS"
-           python setup.py install
-       fi
-       conda deactivate
+       echo "python -c 'import cdtime'"
+       python -c "import cdtime"
 
-  - &run_cdtime_tests
-    name: run_cdtime_tests
+  - &run_tests
+    name: run_tests
     command: |
-       #export PATH=$WORKDIR/miniconda/bin:$PATH
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate base
-       export CDAT_ANONYMOUS_LOG=False
-       set -e
-       conda activate $PY_VER
-       python run_tests.py -v2
-       RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT}
-       exit $RESULT
-
-  - &upload_cdtime
-    name: upload_cdtime
-    command: |
-       #export PATH=$HOME/project/$WORKDIR/miniconda/bin:$PATH
-       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate base
-       # force loading conda gcc
-       conda activate $PY_VER
-       export LABEL="nightly";
-       if [[ $CIRCLE_BRANCH != "master" ]]; then
-           exit 0
-       fi
-       conda install -n root conda-build anaconda-client
-       bash ./ci-support/conda_upload.sh
+       # conda activate base
+       conda activate test_cdtime
+       echo "python -c 'import cdtime'"
+       python -c "import cdtime"
+       python run_tests.py -H -v2 -n 2
 
 jobs:
-  macos_cdtime_py2:
-    macos:
-      xcode: "11.1.0"
-    environment:
-      WORKDIR: "test_macos_cdtime_py2"
-      PY_VER: "py2"
-      COMPILERS: "gcc"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_cdtime
-      - run: *run_cdtime_tests
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
-
-  macos_cdtime_py3:
-    macos:
-      xcode: "11.3.0"
-    environment:
-      WORKDIR: "test_macos_cdtime_py3"
-      PY_VER: "py3"
-      COMPILERS: "gcc"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_cdtime
-      - run: *run_cdtime_tests
-      #- run: *upload_cdtime
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
-
-  linux_cdtime_py2:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: "test_linux_cdtime_py2"
-      PY_VER: "py2"
-      COMPILERS: "gcc_linux-64"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_cdtime
-      - run: *run_cdtime_tests
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
-
-  linux_cdtime_py3:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: "test_linux_cdtime_py3"
-      PY_VER: "py3"
-      COMPILERS: "gcc_linux-64"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_cdtime
-      - run: *run_cdtime_tests
-      - run: *upload_cdtime
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
+   linux_cdtime:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: "/home/circleci/project/workdir"
+         LAST_STABLE: "3.1.2"
+      steps:
+         - checkout
+         - run: *setup_miniconda
+         - run: *build_cdtime
+         - run: *setup_run_tests
+         - run: *run_tests
 
 workflows:
-  version: 2
-  cdtime_test:
-    jobs:
-      #- macos_cdtime_py2
-      - macos_cdtime_py3
-      #     requires:
-      #        - macos_cdtime_py2
-      #- linux_cdtime_py2
-      #- linux_cdtime_py3:
-      #     requires:
-      #        - linux_cdtime_py2
+   version: 2
+   cdtime:
+      jobs:
+         - linux_cdtime
 
-       
