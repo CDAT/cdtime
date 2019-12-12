@@ -40,6 +40,7 @@ aliases:
        conda activate test_cdtime
        echo "python -c 'import cdtime'"
        python -c "import cdtime"
+       python -c "import sys; print(sys.path)"
        python run_tests.py -H -v2 -n 2
 
 jobs:
