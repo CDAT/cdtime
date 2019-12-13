@@ -7,26 +7,17 @@ aliases:
        mkdir -p workspace
        git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
        # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
+       WORKDIR=`pwd`
        python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
 
   - &build_pkg
     name: build_pkg
     command: |
-       git clone -b sync_recipe https://github.com/CDAT/conda-recipes.git $WORKDIR/conda-recipes 
-       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       git clone -b sync_recipe https://github.com/CDAT/conda-recipes.git conda-recipes 
+       source miniconda/etc/profile.d/conda.sh
        conda activate base
-       python $WORKDIR/conda-recipes/build_tools/conda_build.py -w $WORKDIR -l $LAST_STABLE -B 0 -p $PKG_NAME -b $CIRCLE_BRANCH
-
-  - &prep_conda_cache
-    name: prep_conda_cache
-    command: |
-       mv $WORKDIR/miniconda miniconda
-
-  - &get_conda_cache
-    name: get_conda_cache
-    command: |
-       mkdir -p $WORKDIR
-       mv miniconda $WORKDIR/
+       WORKDIR=`pwd`
+       python conda-recipes/build_tools/conda_build.py -w $WORKDIR -l $LAST_STABLE -B 0 -p $PKG_NAME -b $CIRCLE_BRANCH
 
   - &setup_run_tests
     name: setup_run_tests
@@ -34,7 +25,7 @@ aliases:
        PKGS: "numpy cdat_info libcdms libdrs_f testsrunner 'libnetcdf=4.6.2'"
        CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
-       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       source miniconda/etc/profile.d/conda.sh
        conda activate base
        conda create -y -n $ENV_NAME --use-local $CHANNELS "$PY_VER" $PKG_NAME $PKGS
        conda activate $ENV_NAME
@@ -43,7 +34,7 @@ aliases:
   - &run_tests
     name: run_tests
     command: |
-       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       source miniconda/etc/profile.d/conda.sh
        conda activate $ENV_NAME
        python -c "import $PKG_NAME; import sys; print(sys.path)"
        python run_tests.py -H -v2 -n 2
@@ -54,20 +45,18 @@ jobs:
          xcode: "11.1.0"
       environment:
          PKG_NAME: "cdtime"
-         WORKDIR: "/Users/distiller/project/workdir"
          LAST_STABLE: "3.1.2"
       steps:
          - run: *setup_miniconda
          - run: *build_pkg
          - persist_to_workspace:
-              root: $WORKDIR/miniconda
+              root: miniconda
 
    linux_setup:
       machine:
          image: circleci/classic:latest
       environment:
          PKG_NAME: "cdtime"
-         WORKDIR: "/home/circleci/project/workdir"
          LAST_STABLE: "3.1.2"
       steps:
          - attach_workspace:
@@ -75,7 +64,7 @@ jobs:
          - run: *setup_miniconda
          - run: *build_pkg
          - persist_to_workspace:
-              root: $WORKDIR/miniconda
+              root: miniconda
 
    macos_cdtime_py2:
       macos:
@@ -83,13 +72,11 @@ jobs:
       environment:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         WORKDIR: "/Users/distiller/project/workdir"
          PY_VER: "python<3"
       steps:
          - checkout
-         - run: mkdir $WORKDIR
          - attach_workspace:
-              at: $WORKDIR/miniconda
+              at: miniconda
          - run: *setup_run_tests
          - run: *run_tests
          - store_artifacts:
@@ -105,13 +92,11 @@ jobs:
       environment:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         WORKDIR: "/Users/distiller/project/workdir"
          PY_VER: "python>=3.7,<3.8"
       steps:
          - checkout
-         - run: mkdir $WORKDIR
          - attach_workspace:
-              at: $WORKDIR/miniconda
+              at: miniconda
          - run: *setup_run_tests
          - run: *run_tests
          - store_artifacts:
@@ -127,13 +112,11 @@ jobs:
       environment:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         WORKDIR: "/home/circleci/project/workdir"
          PY_VER: "python<3"
       steps:
          - checkout
-         - run: mkdir $WORKDIR
          - attach_workspace:
-              at: $WORKDIR/miniconda
+              at: miniconda
          - run: *setup_run_tests
          - run: *run_tests
          - store_artifacts:
@@ -149,13 +132,11 @@ jobs:
       environment:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         WORKDIR: "/home/circleci/project/workdir"
          PY_VER: "python>=3.7,<3.8"
       steps:
          - checkout
-         - run: mkdir $WORKDIR
          - attach_workspace:
-              at: $WORKDIR/miniconda
+              at: miniconda
          - run: *setup_run_tests
          - run: *run_tests
          - store_artifacts:
