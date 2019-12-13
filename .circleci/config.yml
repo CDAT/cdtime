@@ -15,7 +15,7 @@ aliases:
        git clone -b sync_recipe https://github.com/CDAT/conda-recipes.git $WORKDIR/conda-recipes 
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       python $WORKDIR/conda-recipes/build_tools/conda_build_upload.py -w $WORKDIR -l $LAST_STABLE -B 0 -p $PKG_NAME -b $CIRCLE_BRANCH
+       python $WORKDIR/conda-recipes/build_tools/conda_build.py -w $WORKDIR -l $LAST_STABLE -B 0 -p $PKG_NAME -b $CIRCLE_BRANCH
 
   - &prep_conda_cache
     name: prep_conda_cache
