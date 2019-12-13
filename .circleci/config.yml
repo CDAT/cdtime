@@ -50,7 +50,9 @@ jobs:
          - run: *setup_miniconda
          - run: *build_pkg
          - persist_to_workspace:
-              root: miniconda
+              root: .
+              paths: 
+                 - miniconda
 
    linux_setup:
       machine:
@@ -64,7 +66,9 @@ jobs:
          - run: *setup_miniconda
          - run: *build_pkg
          - persist_to_workspace:
-              root: miniconda
+              root: .
+              paths:
+                 - miniconda
 
    macos_cdtime_py2:
       macos:
@@ -76,7 +80,7 @@ jobs:
       steps:
          - checkout
          - attach_workspace:
-              at: miniconda
+              at: .
          - run: *setup_run_tests
          - run: *run_tests
          - store_artifacts:
@@ -96,7 +100,7 @@ jobs:
       steps:
          - checkout
          - attach_workspace:
-              at: miniconda
+              at: .
          - run: *setup_run_tests
          - run: *run_tests
          - store_artifacts:
@@ -116,7 +120,7 @@ jobs:
       steps:
          - checkout
          - attach_workspace:
-              at: miniconda
+              at: .
          - run: *setup_run_tests
          - run: *run_tests
          - store_artifacts:
@@ -136,7 +140,7 @@ jobs:
       steps:
          - checkout
          - attach_workspace:
-              at: miniconda
+              at: .
          - run: *setup_run_tests
          - run: *run_tests
          - store_artifacts:
