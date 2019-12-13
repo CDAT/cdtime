@@ -120,7 +120,6 @@ jobs:
              path: tests_png
              destination: tests_png
 
-
    linux_cdtime_py2:
       machine:
          image: circleci/classic:latest
@@ -171,8 +170,17 @@ workflows:
    version: 2
    cdtime:
       jobs:
-         - macos_cdtime_py2
-         - macos_cdtime_py37
-         - linux_cdtime_py2
-         - linux_cdtime_py37
-
+         - macos_setup
+         - linux_setup
+         - macos_cdtime_py2:
+              requires:
+                 - macos_setup
+         - macos_cdtime_py37:
+              requires:
+                 - macos_cdtime_py2
+         - linux_cdtime_py2:
+              requires:
+                 - linux_setup
+         - linux_cdtime_py37:
+              requires:
+                 - linux_cdtime_py2
