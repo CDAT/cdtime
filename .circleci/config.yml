@@ -53,8 +53,9 @@ jobs:
       macos:
          xcode: "11.1.0"
       environment:
-         WORKDIR: "/Users/distiller/project/workdir"
          PKG_NAME: "cdtime"
+         WORKDIR: "/Users/distiller/project/workdir"
+         LAST_STABLE: "3.1.2"
       steps:
          - run: *setup_miniconda
          - run: *build_pkg
@@ -65,7 +66,9 @@ jobs:
       machine:
          image: circleci/classic:latest
       environment:
+         PKG_NAME: "cdtime"
          WORKDIR: "/home/circleci/project/workdir"
+         LAST_STABLE: "3.1.2"
       steps:
          - attach_workspace:
               at: .
@@ -81,7 +84,6 @@ jobs:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
          WORKDIR: "/Users/distiller/project/workdir"
-         LAST_STABLE: "3.1.2"
          PY_VER: "python<3"
       steps:
          - checkout
@@ -104,7 +106,6 @@ jobs:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
          WORKDIR: "/Users/distiller/project/workdir"
-         LAST_STABLE: "3.1.2"
          PY_VER: "python>=3.7,<3.8"
       steps:
          - checkout
@@ -127,7 +128,6 @@ jobs:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
          WORKDIR: "/home/circleci/project/workdir"
-         LAST_STABLE: "3.1.2"
          PY_VER: "python<3"
       steps:
          - checkout
@@ -150,7 +150,6 @@ jobs:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
          WORKDIR: "/home/circleci/project/workdir"
-         LAST_STABLE: "3.1.2"
          PY_VER: "python>=3.7,<3.8"
       steps:
          - checkout
