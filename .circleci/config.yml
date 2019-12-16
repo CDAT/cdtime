@@ -22,7 +22,7 @@ aliases:
     name: conda_build
     command: |
        git clone -b sync_recipe https://github.com/CDAT/conda-recipes.git conda-recipes 
-       source miniconda/etc/profile.d/conda.sh
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        BUILD_SCRIPT="conda-recipes/build_tools/conda_build.py"
        python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME -V $PY_VER --do_build
@@ -33,7 +33,7 @@ aliases:
        PKGS: "numpy cdat_info libcdms libdrs_f testsrunner 'libnetcdf=4.6.2'"
        CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
-       source miniconda/etc/profile.d/conda.sh
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        conda create -y -n $ENV_NAME --use-local $CHANNELS "$PY_VER" $PKG_NAME $PKGS
        conda activate $ENV_NAME
@@ -42,7 +42,7 @@ aliases:
   - &run_tests
     name: run_tests
     command: |
-       source miniconda/etc/profile.d/conda.sh
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate $ENV_NAME
        python -c "import $PKG_NAME; import sys; print(sys.path)"
        python run_tests.py -H -v2 -n 2
@@ -120,6 +120,8 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
+         - run: *setup_miniconda
+         - run: *conda_rerender
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
