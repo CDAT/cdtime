@@ -25,7 +25,7 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        BUILD_SCRIPT="conda-recipes/build_tools/conda_build.py"
-       python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME -V $PY_VER --do_build
+       python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME --build_version $PY_VER --do_build
 
   - &setup_run_tests
     name: setup_run_tests
