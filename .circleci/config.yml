@@ -23,7 +23,7 @@ aliases:
   - &conda_build
     name: conda_build
     command: |
-       #git clone -b sync_recipe https://github.com/CDAT/conda-recipes.git conda-recipes 
+       git clone -b sync_recipe https://github.com/CDAT/conda-recipes.git conda-recipes 
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        BUILD_SCRIPT="$WORKDIR/conda-recipes/build_tools/conda_build.py"
@@ -97,6 +97,7 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
+         - run: ls -al
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -125,6 +126,7 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
+         - run: ls -al
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -154,6 +156,7 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
+         - run: ls -al
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -182,6 +185,7 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
+         - run: ls -al
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
