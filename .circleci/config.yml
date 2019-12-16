@@ -64,7 +64,7 @@ jobs:
          - persist_to_workspace:
               root: .
               paths: 
-                 - macos_build/miniconda
+                 - macos_build
 
    linux_setup:
       machine:
@@ -81,7 +81,7 @@ jobs:
          - persist_to_workspace:
               root: .
               paths:
-                 - linux_build/miniconda
+                 - linux_build
 
    macos_cdtime_py2:
       macos:
