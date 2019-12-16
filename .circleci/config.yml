@@ -25,7 +25,7 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        BUILD_SCRIPT="conda-recipes/build_tools/conda_build.py"
-       python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME --build_version $PY_VER --do_build
+       python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME --build_version $BUILD_VARIANT_VER --do_build
 
   - &setup_run_tests
     name: setup_run_tests
@@ -33,9 +33,10 @@ aliases:
        PKGS: "numpy cdat_info libcdms libdrs_f testsrunner 'libnetcdf=4.6.2'"
        CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
+       echo "source $WORKDIR/miniconda/etc/profile.d/conda.sh"
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       conda create -y -n $ENV_NAME --use-local $CHANNELS "$PY_VER" $PKG_NAME $PKGS
+       conda create -y -n $ENV_NAME --use-local $CHANNELS "$CONDA_PY_VER" $PKG_NAME $PKGS
        conda activate $ENV_NAME
        conda list
 
@@ -86,7 +87,7 @@ jobs:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
          LAST_STABLE: "3.1.2"
-         PY_VER: "python<3"
+         CONDA_PY_VER: "python<3"
          BUILD_VARIANT_VER: "2.7"
       steps:
          - checkout
@@ -114,7 +115,7 @@ jobs:
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
          LAST_STABLE: "3.1.2"
-         PY_VER: "python<3"
+         CONDA_PY_VER: "python<3"
          BUILD_VARIANT_VER: "2.7"
       steps:
          - checkout
