@@ -57,8 +57,8 @@ aliases:
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       anaconda upload -u $USER -l $LABEL linux_build/miniconda/conda-bld/linux-64/$PKG_NAME*tar.bz2
-       anaconda upload -u $USER -l $LABEL macos_build/miniconda/conda-bld/osx-64/$PKG_NAME*tar.bz2       
+       anaconda upload -u $USER -l $LABEL linux_build/miniconda/conda-bld/linux-64/$PKG_NAME*tar.bz2 --force
+       anaconda upload -u $USER -l $LABEL macos_build/miniconda/conda-bld/osx-64/$PKG_NAME*tar.bz2 --force
 
 jobs:
    macos_setup:
