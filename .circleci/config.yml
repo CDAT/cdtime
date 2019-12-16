@@ -204,8 +204,8 @@ jobs:
               at: .
          - run: pwd
          - run: ls -l
-         - run: ls -l macos_build
-         - run: ls -l linux_build
+         - run: ls -l *
+
 
 
 workflows:
