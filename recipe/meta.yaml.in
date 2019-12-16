@@ -8,7 +8,8 @@ source:
 
 build:
   number: @BUILD_NUMBER@
- 
+  skip: True  # [win] 
+
 requirements:
   build:
     - {{ compiler('c') }}
@@ -19,7 +20,7 @@ requirements:
     - libcdms
     - numpy
     - libnetcdf >=4.6.2,<4.6.3.0a0
-    - cdat_info >=8.1.1
+    - cdat_info
     - libdrs_f
 
   run:
@@ -27,7 +28,7 @@ requirements:
     - setuptools
     - libcdms
     - libnetcdf >=4.6.2,<4.6.3.0a0
-    - cdat_info >=8.1.1
+    - cdat_info
     - libdrs_f
     - {{ pin_compatible('numpy') }}
 
