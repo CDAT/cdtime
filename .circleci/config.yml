@@ -109,7 +109,7 @@ jobs:
          - persist_to_workspace:
               root: .
               paths: 
-                 - macos_build
+                 - macos_build/miniconda/conda-bld/osx-64/cdtime*tar.bz2
 
    macos_cdtime_py37:
       macos:
@@ -166,7 +166,7 @@ jobs:
          - persist_to_workspace:
               root: .
               paths: 
-                 - linux_build
+                 - linux_build/miniconda/conda-bld/linux-64/cdtime*tar.bz2
 
    linux_cdtime_py37:
       machine:
