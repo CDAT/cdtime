@@ -95,8 +95,8 @@ jobs:
          BUILD_VARIANT_VER: "2.7"
       steps:
          - checkout
-         - attach_workspace:
-              at: .
+         - run: *setup_miniconda
+         - run: *conda_rerender
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -152,8 +152,8 @@ jobs:
          BUILD_VARIANT_VER: "2.7"
       steps:
          - checkout
-         - attach_workspace:
-              at: .
+         - run: *setup_miniconda
+         - run: *conda_rerender
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -212,18 +212,7 @@ workflows:
    version: 2
    cdtime:
       jobs:
-         - macos_setup
-         - linux_setup
-         - macos_cdtime_py2:
-              requires:
-                 - macos_setup
-         - macos_cdtime_py37:
-              requires:
-                 - macos_setup
-         - linux_cdtime_py2:
-              requires:
-                 - linux_setup
-         - linux_cdtime_py37:
-              requires:
-                 - linux_setup
+         - macos_cdtime_py2
+         - linux_cdtime_py2
+
 
