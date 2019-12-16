@@ -156,7 +156,7 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
-         - run: ls -al
+         - run: ls -al linux_build/cdtime-feedstock/.ci_support
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -185,7 +185,7 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
-         - run: ls -al
+         - run: ls -al linux_build/cdtime-feedstock/.ci_support
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
