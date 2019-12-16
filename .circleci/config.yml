@@ -212,9 +212,24 @@ workflows:
    version: 2
    cdtime:
       jobs:
-         - macos_cdtime_py2
-         - linux_cdtime_py2
+         - macos_setup
+         - linux_setup
+         - macos_cdtime_py2:
+              requires:
+                 - macos_setup
+         - macos_cdtime_py37:
+              requires:
+                 - macos_setup
+         - linux_cdtime_py2:
+              requires:
+                 - linux_setup
+         - linux_cdtime_py37:
+              requires:
+                 - linux_setup
          - upload:
               requires:
                  - macos_cdtime_py2
-                 - linux_cdtime_py2  
+                 - macos_cdtime_py37
+                 - linux_cdtime_py2 
+                 - linux_cdtime_py37
+
