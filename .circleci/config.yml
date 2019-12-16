@@ -214,5 +214,7 @@ workflows:
       jobs:
          - macos_cdtime_py2
          - linux_cdtime_py2
-
-
+         - upload:
+              requires:
+                 - macos_cdtime_py2
+                 - linux_cdtime_py2
