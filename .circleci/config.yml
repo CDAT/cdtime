@@ -52,6 +52,13 @@ aliases:
        python -c "import $PKG_NAME; import sys; print(sys.path)"
        python run_tests.py -H -v2 -n 2
 
+  - &conda_upload
+    name: conda_upload
+    command: |
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
+       
+
 jobs:
    macos_setup:
       macos:
@@ -205,14 +212,18 @@ jobs:
    upload:
       machine:
          image: circleci/classic:latest
+      environment:
+         PKG_NAME: "cdtime"
+         USER: "cdat"
+         LABEL: "linatest"
       steps:
          - attach_workspace:
               at: .
          - run: pwd
          - run: ls -l linux_build/miniconda/conda-bld/linux-64
          - run: ls -l macos_build/miniconda/conda-bld/osx-64
-
-
+         - run: anaconda upload -u $USER -l $LABEL linux_build/miniconda/conda-bld/linux-64/$PKG_NAME*tar.bz2
+         - run: anaconda upload -u $USER -l $LABEL macos_build/miniconda/conda-bld/osx-64/$PKG_NAME*tar.bz2
 
 workflows:
    version: 2
