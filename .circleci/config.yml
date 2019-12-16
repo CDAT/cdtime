@@ -33,7 +33,7 @@ aliases:
     name: setup_run_tests
     environment:
        PKGS: "numpy cdat_info libcdms libdrs_f testsrunner 'libnetcdf=4.6.2'"
-       CHANNELS: "-c cdat/label/nightly -c conda-forge"
+       CHANNELS: "-c cdat/label/linatest -c cdat/label/nightly -c conda-forge"
     command: |
        echo "source $WORKDIR/miniconda/etc/profile.d/conda.sh"
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
