@@ -226,10 +226,4 @@ workflows:
          - linux_cdtime_py37:
               requires:
                  - linux_setup
-         - upload:
-              requires:
-                 - macos_cdtime_py2
-                 - macos_cdtime_py37
-                 - linux_cdtime_py2 
-                 - linux_cdtime_py37
 
