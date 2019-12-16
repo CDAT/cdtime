@@ -203,8 +203,8 @@ jobs:
          - attach_workspace:
               at: .
          - run: pwd
-         - run: ls -l
-         - run: ls -l *
+         - run: ls -l linux_build/miniconda/conda-bld/linux-64
+         - run: ls -l macos_build/miniconda/conda-bld/osx-64
 
 
 
