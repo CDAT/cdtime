@@ -19,19 +19,16 @@ aliases:
        python $BUILD_SCRIPT -w $WORKDIR -l $LAST_STABLE -B 0 -p $PKG_NAME -b $CIRCLE_BRANCH --do_rerender
        echo "ls -l $WORKDIR/cdtime-feedstock/.ci_support"
        ls -l $WORKDIR/cdtime-feedstock/.ci_support
-       which anaconda
 
   - &conda_build
     name: conda_build
     command: |
-       #git clone -b sync_recipe https://github.com/CDAT/conda-recipes.git $WORKDIR/conda-recipes 
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        conda config --add channels conda-forge --force
        conda config --set channel_priority strict
        BUILD_SCRIPT="$WORKDIR/conda-recipes/build_tools/conda_build.py"
        python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME --build_version $BUILD_VARIANT_VER --do_build
-       which anaconda
 
   - &setup_run_tests
     name: setup_run_tests
@@ -59,9 +56,9 @@ aliases:
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       which anaconda
-       anaconda upload -u $USER -l $LABEL linux_build/miniconda/conda-bld/linux-64/$PKG_NAME*tar.bz2 --force
-       anaconda upload -u $USER -l $LABEL macos_build/miniconda/conda-bld/osx-64/$PKG_NAME*tar.bz2 --force
+       UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
+       anaconda $UPLOAD_OPTIONS linux_build/miniconda/conda-bld/linux-64/$PKG_NAME*tar.bz2 --force
+       anaconda $UPLOAD_OPTIONS macos_build/miniconda/conda-bld/osx-64/$PKG_NAME*tar.bz2 --force
 
 jobs:
    macos_setup:
@@ -110,7 +107,6 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
-         - run: ls -al macos_build
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -139,7 +135,6 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
-         - run: ls -al
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -169,7 +164,6 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
-         - run: ls -al linux_build/cdtime-feedstock/.ci_support
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -198,7 +192,6 @@ jobs:
          - checkout
          - attach_workspace:
               at: .
-         - run: ls -al linux_build/cdtime-feedstock/.ci_support
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
@@ -225,11 +218,7 @@ jobs:
          - attach_workspace:
               at: .
          - run: pwd
-         - run: ls -l linux_build/miniconda/conda-bld/linux-64
-         - run: ls -l macos_build/miniconda/conda-bld/osx-64
          - run: *conda_upload
-         #- run: anaconda upload -u $USER -l $LABEL linux_build/miniconda/conda-bld/linux-64/$PKG_NAME*tar.bz2
-         #- run: anaconda upload -u $USER -l $LABEL macos_build/miniconda/conda-bld/osx-64/$PKG_NAME*tar.bz2
 
 workflows:
    version: 2
