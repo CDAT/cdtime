@@ -53,6 +53,9 @@ aliases:
   - &conda_upload
     name: conda_upload
     command: |
+       if [[ $CIRCLE_BRANCH != "master" ]]; then
+          exit 0
+       fi
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
@@ -148,6 +151,33 @@ jobs:
               paths:
                  - macos_build/miniconda/conda-bld/osx-64/cdtime*tar.bz2
 
+   macos_cdtime_py38:
+      macos:
+         xcode: "11.1.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "cdtime"
+         ENV_NAME: "test_cdtime"
+         LAST_STABLE: "3.1.2"
+         CONDA_PY_VER: "python>=3.8,<3.9"
+         BUILD_VARIANT_VER: "3.8"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *conda_build
+         - run: *setup_run_tests
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - macos_build/miniconda/conda-bld/osx-64/cdtime*tar.bz2
 
    linux_cdtime_py2:
       machine:
@@ -205,6 +235,34 @@ jobs:
               paths:
                  - linux_build/miniconda/conda-bld/linux-64/cdtime*tar.bz2
 
+   linux_cdtime_py38:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "cdtime"
+         ENV_NAME: "test_cdtime"
+         LAST_STABLE: "3.1.2"
+         CONDA_PY_VER: "python>=3.8,<3.9"
+         BUILD_VARIANT_VER: "3.8"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *conda_build
+         - run: *setup_run_tests
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - linux_build/miniconda/conda-bld/linux-64/cdtime*tar.bz2
+
    upload:
       machine:
          image: circleci/classic:latest
@@ -232,15 +290,23 @@ workflows:
          - macos_cdtime_py37:
               requires:
                  - macos_setup
+         - macos_cdtime_py38:
+              requires:
+                 - macos_setup
          - linux_cdtime_py2:
               requires:
                  - linux_setup
          - linux_cdtime_py37:
               requires:
                  - linux_setup
+         - linux_cdtime_py38:
+              requires:
+                 - linux_setup
          - upload:
               requires:
                  - macos_cdtime_py2
-                 - linux_cdtime_py2
                  - macos_cdtime_py37
+                 - macos_cdtime_py38
+                 - linux_cdtime_py2
                  - linux_cdtime_py37
+                 - linux_cdtime_py38
