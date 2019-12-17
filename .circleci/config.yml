@@ -38,7 +38,7 @@ aliases:
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       conda create -y -n $ENV_NAME --use-local $CHANNELS "$CONDA_PY_VER" $PKG_NAME $PKGS $COVERAGE_PKGS
+       conda create -y -n $ENV_NAME --use-local $CHANNELS "$CONDA_PY_VER" $PKG_NAME $PKGS
        conda activate $ENV_NAME
        conda list
 
@@ -48,7 +48,7 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate $ENV_NAME
        python -c "import $PKG_NAME; import sys; print(sys.path)"
-       python run_tests.py -H -v2 -n 2 $COVERAGE
+       python run_tests.py -H -v2
 
   - &conda_upload
     name: conda_upload
@@ -61,14 +61,6 @@ aliases:
        UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
        anaconda $UPLOAD_OPTIONS linux_build/miniconda/conda-bld/linux-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
        anaconda $UPLOAD_OPTIONS macos_build/miniconda/conda-bld/osx-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
-
-  - &run_coveralls
-    name: run_coveralls
-    command: |
-       source $WORKDIR/miniconda/etc/profile.d/conda.sh
-       conda activate $ENV_NAME
-       coveralls
-       conda deactivate
 
 jobs:
    macos_setup:
@@ -253,8 +245,6 @@ jobs:
          LAST_STABLE: "3.1.2"
          CONDA_PY_VER: "python>=3.8,<3.9"
          BUILD_VARIANT_VER: "3.8"
-         COVERAGE: "-c tests/coverage.json --coverage-from-egg"
-         COVERAGE_PKGS: "coverage coveralls"
       steps:
          - checkout
          - attach_workspace:
@@ -262,7 +252,6 @@ jobs:
          - run: *conda_build
          - run: *setup_run_tests
          - run: *run_tests
-         - run: *run_coveralls
          - store_artifacts:
               path: tests_html
               destination: tests_html
