@@ -38,6 +38,7 @@ aliases:
     command: |
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
+       conda config --add channels cdat/label/nightly --force
        conda create -y -n $ENV_NAME --use-local $CHANNELS "$CONDA_PY_VER" $PKG_NAME $PKGS
        conda activate $ENV_NAME
        conda list
@@ -53,9 +54,9 @@ aliases:
   - &conda_upload
     name: conda_upload
     command: |
-       if [[ $CIRCLE_BRANCH != "master" ]]; then
-          exit 0
-       fi
+       #if [[ $CIRCLE_BRANCH != "master" ]]; then
+       #   exit 0
+       #fi
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
@@ -275,7 +276,6 @@ jobs:
       steps:
          - attach_workspace:
               at: .
-         - run: pwd
          - run: *conda_upload
 
 workflows:
