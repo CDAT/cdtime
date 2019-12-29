@@ -17,6 +17,7 @@ requirements:
   host:
     - python
     - setuptools
+    - cython
     - libcdms
     - numpy
     - libnetcdf >=4.6.2,<4.6.3.0a0
