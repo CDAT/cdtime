@@ -101,7 +101,6 @@ jobs:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         LAST_STABLE: "3.1.2"
          CONDA_PY_VER: "python<3"
          BUILD_VARIANT_VER: "2.7"
       steps:
@@ -129,7 +128,6 @@ jobs:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         LAST_STABLE: "3.1.2"
          CONDA_PY_VER: "python>=3.7,<3.8"
          BUILD_VARIANT_VER: "3.7"
       steps:
@@ -157,7 +155,6 @@ jobs:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         LAST_STABLE: "3.1.2"
          CONDA_PY_VER: "python>=3.8,<3.9"
          BUILD_VARIANT_VER: "3.8"
       steps:
@@ -185,7 +182,6 @@ jobs:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         LAST_STABLE: "3.1.2"
          CONDA_PY_VER: "python<3"
          BUILD_VARIANT_VER: "2.7"
       steps:
@@ -213,7 +209,6 @@ jobs:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         LAST_STABLE: "3.1.2"
          CONDA_PY_VER: "python>=3.7,<3.8"
          BUILD_VARIANT_VER: "3.7"
       steps:
@@ -241,7 +236,6 @@ jobs:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         LAST_STABLE: "3.1.2"
          CONDA_PY_VER: "python>=3.8,<3.9"
          BUILD_VARIANT_VER: "3.8"
       steps:
