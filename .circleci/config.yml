@@ -1,161 +1,310 @@
 version: 2
 
-checkout:
-  post:
-    - ./ci-support/checkout_merge_commit.sh
-        
 aliases:
-
   - &setup_miniconda
     name: setup_miniconda
     command: |
-      mkdir -p workspace
-      git clone -b validateNightly --depth 1 git@github.com:CDAT/cdat workspace/cdat
-      python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
-      
-  - &create_conda_env
-    name: create_conda_env
+       mkdir -p workspace
+       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+       # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
+       python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
+
+  - &conda_rerender
+    name: conda_rerender
+    command: |
+       git clone -b conda_forge_pinning https://github.com/CDAT/conda-recipes.git $WORKDIR/conda-recipes 
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
+       BUILD_SCRIPT="$WORKDIR/conda-recipes/build_tools/conda_build.py"
+       python $BUILD_SCRIPT -w $WORKDIR -l $LAST_STABLE -B 0 -p $PKG_NAME -b $CIRCLE_BRANCH --do_rerender
+
+  - &conda_build
+    name: conda_build
+    command: |
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
+       conda config --add channels conda-forge --force
+       conda config --add channels cdat/label/nightly --force
+       conda config --set channel_priority strict
+       cat ~/.condarc
+       BUILD_SCRIPT="$WORKDIR/conda-recipes/build_tools/conda_build.py"
+       python $BUILD_SCRIPT -w $WORKDIR -p $PKG_NAME --build_version $BUILD_VARIANT_VER --do_build
+
+  - &setup_run_tests
+    name: setup_run_tests
     environment:
-       PKGS: "numpy cdat_info libcdms libdrs_f testsrunner"
-       CHANNELS: "-c cdat/label/unstable -c cdat/label/nightly -c conda-forge -c cdat"
+       PKGS: "numpy cdat_info libcdms libdrs_f testsrunner 'libnetcdf=4.6.2'"
+       CHANNELS: "-c cdat/label/nightly -c conda-forge"
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       conda config --set always_yes yes --set changeps1 no
-       conda update -y -q conda
-       conda config --set anaconda_upload no
-       if [[ $PY_VER = "py2" ]]; then
-          conda create -n $PY_VER $CHANNELS $PKGS 'python<3' $COMPILERS
-       else
-          conda create -n $PY_VER $CHANNELS $PKGS 'python>3' $COMPILERS
-       fi
-       source activate $PY_VER
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
+       conda create -y -n $ENV_NAME --use-local $CHANNELS "$CONDA_PY_VER" $PKG_NAME $PKGS
+       conda activate $ENV_NAME
        conda list
-       source deactivate
-       
-  - &setup_cdtime
-    name: setup_cdtime
-    command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       export CDAT_ANONYMOUS_LOG=False
-       source activate $PY_VER
-       if [ $(uname) == "Linux" ]; then
-           LDSHARED="$CC -shared -pthread" python setup.py install
-       else
-           python setup.py install
-       fi
-       source deactivate
 
-  - &run_cdtime_tests
-    name: run_cdtime_tests
+  - &run_tests
+    name: run_tests
     command: |
-       export PATH=$WORKDIR/miniconda/bin:$PATH
-       export CDAT_ANONYMOUS_LOG=False
-       set -e
-       source activate $PY_VER
-       python run_tests.py -v2
-       RESULT=$?
-       echo "*** $PY_VER test result: "${RESULT}
-       exit $RESULT
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate $ENV_NAME
+       python run_tests.py -H -v2
 
-  - &upload_cdtime
-    name: upload_cdtime
+  - &conda_upload
+    name: conda_upload
     command: |
-       export PATH=$HOME/project/$WORKDIR/miniconda/bin:$PATH
-       # force loading conda gcc
-       source activate $PY_VER
-       export LABEL="nightly";
-       if [[ $CIRCLE_BRANCH == "master" ]]; then
-           conda install -n root conda-build anaconda-client
-           bash ./ci-support/conda_upload.sh
-       else
-           export LABEL="unstable";
-           echo "NOTE: upload LABEL="${LABEL}
-           conda install -n root conda-build anaconda-client;
-           bash ./ci-support/conda_upload.sh;
-       fi
+       #if [[ $CIRCLE_BRANCH != "master" ]]; then
+       #   exit 0
+       #fi
+       source $WORKDIR/miniconda/etc/profile.d/conda.sh
+       conda activate base
+       UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
+       anaconda $UPLOAD_OPTIONS linux_build/miniconda/conda-bld/linux-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+       anaconda $UPLOAD_OPTIONS macos_build/miniconda/conda-bld/osx-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
 jobs:
-  macos_cdtime_py2:
-    macos:
-      xcode: "9.2.0"
-    environment:
-      WORKDIR: "test_macos_cdtime_py2"
-      PY_VER: "py2"
-      COMPILERS: "gcc"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_cdtime
-      - run: *run_cdtime_tests
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
+   macos_setup:
+      macos:
+         xcode: "11.3.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "cdtime"
+         LAST_STABLE: "3.1.2"
+      steps:
+         - checkout
+         - run: *setup_miniconda
+         - run: *conda_rerender
+         - persist_to_workspace:
+              root: .
+              paths: 
+                 - macos_build
 
-  macos_cdtime_py3:
-    macos:
-      xcode: "9.2.0"
-    environment:
-      WORKDIR: "test_macos_cdtime_py3"
-      PY_VER: "py3"
-      COMPILERS: "gcc"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_cdtime
-      - run: *run_cdtime_tests
-      - run: *upload_cdtime
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
+   linux_setup:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "cdtime"
+         LAST_STABLE: "3.1.2"
+      steps:
+         - checkout
+         - run: *setup_miniconda
+         - run: *conda_rerender
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - linux_build
 
-  linux_cdtime_py2:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: "test_linux_cdtime_py2"
-      PY_VER: "py2"
-      COMPILERS: "gcc_linux-64"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_cdtime
-      - run: *run_cdtime_tests
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
+   macos_cdtime_py2:
+      macos:
+         xcode: "11.3.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "cdtime"
+         ENV_NAME: "test_cdtime"
+         LAST_STABLE: "3.1.2"
+         CONDA_PY_VER: "python<3"
+         BUILD_VARIANT_VER: "2.7"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *conda_build
+         - run: *setup_run_tests
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - macos_build/miniconda/conda-bld/osx-64/cdtime*tar.bz2
 
-  linux_cdtime_py3:
-    machine:
-      image: circleci/classic:latest
-    environment:
-      WORKDIR: "test_linux_cdtime_py3"
-      PY_VER: "py3"
-      COMPILERS: "gcc_linux-64"
-    steps:
-      - checkout
-      - run: *setup_miniconda
-      - run: *create_conda_env
-      - run: *setup_cdtime
-      - run: *run_cdtime_tests
-      - run: *upload_cdtime
-      - store_artifacts:
-          path: tests_html
-          destination: tests_html
+   macos_cdtime_py37:
+      macos:
+         xcode: "11.3.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "cdtime"
+         ENV_NAME: "test_cdtime"
+         LAST_STABLE: "3.1.2"
+         CONDA_PY_VER: "python>=3.7,<3.8"
+         BUILD_VARIANT_VER: "3.7"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *conda_build
+         - run: *setup_run_tests
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - macos_build/miniconda/conda-bld/osx-64/cdtime*tar.bz2
+
+   macos_cdtime_py38:
+      macos:
+         xcode: "11.3.0"
+      environment:
+         WORKDIR: /Users/distiller/project/macos_build
+         PKG_NAME: "cdtime"
+         ENV_NAME: "test_cdtime"
+         LAST_STABLE: "3.1.2"
+         CONDA_PY_VER: "python>=3.8,<3.9"
+         BUILD_VARIANT_VER: "3.8"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *conda_build
+         - run: *setup_run_tests
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - macos_build/miniconda/conda-bld/osx-64/cdtime*tar.bz2
+
+   linux_cdtime_py2:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "cdtime"
+         ENV_NAME: "test_cdtime"
+         LAST_STABLE: "3.1.2"
+         CONDA_PY_VER: "python<3"
+         BUILD_VARIANT_VER: "2.7"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *conda_build
+         - run: *setup_run_tests
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - linux_build/miniconda/conda-bld/linux-64/cdtime*tar.bz2
+
+   linux_cdtime_py37:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "cdtime"
+         ENV_NAME: "test_cdtime"
+         LAST_STABLE: "3.1.2"
+         CONDA_PY_VER: "python>=3.7,<3.8"
+         BUILD_VARIANT_VER: "3.7"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *conda_build
+         - run: *setup_run_tests
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - linux_build/miniconda/conda-bld/linux-64/cdtime*tar.bz2
+
+   linux_cdtime_py38:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "cdtime"
+         ENV_NAME: "test_cdtime"
+         LAST_STABLE: "3.1.2"
+         CONDA_PY_VER: "python>=3.8,<3.9"
+         BUILD_VARIANT_VER: "3.8"
+      steps:
+         - checkout
+         - attach_workspace:
+              at: .
+         - run: *conda_build
+         - run: *setup_run_tests
+         - run: *run_tests
+         - store_artifacts:
+              path: tests_html
+              destination: tests_html
+         - store_artifacts:
+             path: tests_png
+             destination: tests_png
+         - persist_to_workspace:
+              root: .
+              paths:
+                 - linux_build/miniconda/conda-bld/linux-64/cdtime*tar.bz2
+
+   upload:
+      machine:
+         image: circleci/classic:latest
+      environment:
+         WORKDIR: /home/circleci/project/linux_build
+         PKG_NAME: "cdtime"
+         VERSION: "3.1.2"
+         USER: "cdat"
+         LABEL: "nightly"
+      steps:
+         - attach_workspace:
+              at: .
+         - run: *conda_upload
 
 workflows:
-  version: 2
-  cdtime_test:
-    jobs:
-      - macos_cdtime_py2
-      - macos_cdtime_py3:
-           requires:
-              - macos_cdtime_py2
-      - linux_cdtime_py2
-      - linux_cdtime_py3:
-           requires:
-              - linux_cdtime_py2
-
-       
+   version: 2
+   cdtime:
+      jobs:
+         - macos_setup
+         - linux_setup
+         - macos_cdtime_py2:
+              requires:
+                 - macos_setup
+         - macos_cdtime_py37:
+              requires:
+                 - macos_setup
+         - macos_cdtime_py38:
+              requires:
+                 - macos_setup
+         - linux_cdtime_py2:
+              requires:
+                 - linux_setup
+         - linux_cdtime_py37:
+              requires:
+                 - linux_setup
+         - linux_cdtime_py38:
+              requires:
+                 - linux_setup
+         - upload:
+              requires:
+                 - macos_cdtime_py2
+                 - macos_cdtime_py37
+                 - macos_cdtime_py38
+                 - linux_cdtime_py2
+                 - linux_cdtime_py37
+                 - linux_cdtime_py38
