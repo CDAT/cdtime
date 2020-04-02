@@ -5,7 +5,7 @@ aliases:
     name: setup_miniconda
     command: |
        mkdir -p workspace
-       git clone -b validateNightly git@github.com:CDAT/cdat workspace/cdat
+       git clone -b validateNightlyNew git@github.com:CDAT/cdat workspace/cdat
        # install_miniconda.py installs miniconda3 under $WORKDIR/miniconda
        python workspace/cdat/scripts/install_miniconda.py -w $WORKDIR -p 'py3'
 
@@ -52,9 +52,9 @@ aliases:
   - &conda_upload
     name: conda_upload
     command: |
-       if [[ $CIRCLE_BRANCH != "master" ]]; then
-          exit 0
-       fi
+       #if [[ $CIRCLE_BRANCH != "master" ]]; then
+       #   exit 0
+       #fi
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
@@ -64,7 +64,7 @@ aliases:
 jobs:
    macos_setup:
       macos:
-         xcode: "11.3.0"
+         xcode: "11.4.0"
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "cdtime"
@@ -94,15 +94,15 @@ jobs:
               paths:
                  - linux_build
 
-   macos_cdtime_py2:
+   macos_cdtime_py36:
       macos:
-         xcode: "11.3.0"
+         xcode: "11.4.0"
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         CONDA_PY_VER: "python<3"
-         BUILD_VARIANT_VER: "2.7"
+         CONDA_PY_VER: "python>=3.6,<3.7"
+         BUILD_VARIANT_VER: "3.6"
       steps:
          - checkout
          - attach_workspace:
@@ -123,7 +123,7 @@ jobs:
 
    macos_cdtime_py37:
       macos:
-         xcode: "11.3.0"
+         xcode: "11.4.0"
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "cdtime"
@@ -150,7 +150,7 @@ jobs:
 
    macos_cdtime_py38:
       macos:
-         xcode: "11.3.0"
+         xcode: "11.4.0"
       environment:
          WORKDIR: /Users/distiller/project/macos_build
          PKG_NAME: "cdtime"
@@ -175,15 +175,15 @@ jobs:
               paths:
                  - macos_build/miniconda/conda-bld/osx-64/cdtime*tar.bz2
 
-   linux_cdtime_py2:
+   linux_cdtime_py36:
       machine:
          image: circleci/classic:latest
       environment:
          WORKDIR: /home/circleci/project/linux_build
          PKG_NAME: "cdtime"
          ENV_NAME: "test_cdtime"
-         CONDA_PY_VER: "python<3"
-         BUILD_VARIANT_VER: "2.7"
+         CONDA_PY_VER: "python>=3.6,<3.7"
+         BUILD_VARIANT_VER: "3.6"
       steps:
          - checkout
          - attach_workspace:
@@ -276,7 +276,7 @@ workflows:
       jobs:
          - macos_setup
          - linux_setup
-         - macos_cdtime_py2:
+         - macos_cdtime_py36:
               requires:
                  - macos_setup
          - macos_cdtime_py37:
@@ -285,7 +285,7 @@ workflows:
          - macos_cdtime_py38:
               requires:
                  - macos_setup
-         - linux_cdtime_py2:
+         - linux_cdtime_py36:
               requires:
                  - linux_setup
          - linux_cdtime_py37:
@@ -296,9 +296,9 @@ workflows:
                  - linux_setup
          - upload:
               requires:
-                 - macos_cdtime_py2
+                 - macos_cdtime_py36
                  - macos_cdtime_py37
                  - macos_cdtime_py38
-                 - linux_cdtime_py2
+                 - linux_cdtime_py36
                  - linux_cdtime_py37
                  - linux_cdtime_py38
