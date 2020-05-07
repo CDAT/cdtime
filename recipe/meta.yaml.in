@@ -1,0 +1,59 @@
+{% set name = "cdtime" %}
+
+package:
+  name: {{ name|lower }}
+  version: @VERSION@
+
+source:
+  git_rev: master
+  git_url: https://www.github.com/CDAT/cdtime.git
+
+build:
+  number: @BUILD_NUMBER@
+  skip: True  # [win] 
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('fortran') }}
+  host:
+    - python
+    - setuptools
+    - cython
+    - libcdms
+    - numpy
+    - libnetcdf 
+    - cdat_info
+    - libdrs_f
+
+  run:
+    - python
+    - setuptools
+    - libcdms
+    - libnetcdf * nompi_*
+    - cdat_info
+    - libdrs_f
+    - {{ pin_compatible('numpy') }}
+
+test:
+  imports:
+    - cdtime
+
+about:
+    home:  http://gitub.com/CDAT/cdtime
+    license: BSD-3-Clause
+    license_file: bsd-3-clause.txt
+    summary: Climate calendar manipulation tools
+    description: |
+        The cdtime module contains functions for converting between
+        these forms, based on the common calendars used in climate
+        simulation. Basic arithmetic and comparison operators are also available.
+extra:
+  recipe-maintainers:
+    - dnadeau4
+    - doutriaux1
+    - downiec
+    - muryanto1
+    - jasonb5
+    - xylar
+
