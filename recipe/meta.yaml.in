@@ -22,7 +22,7 @@ requirements:
     - cython
     - libcdms
     - numpy
-    - libnetcdf 
+    - libnetcdf * nompi_* 
     - cdat_info
     - libdrs_f
 
@@ -30,7 +30,7 @@ requirements:
     - python
     - setuptools
     - libcdms
-    - libnetcdf * nompi_*
+    - libnetcdf
     - cdat_info
     - libdrs_f
     - {{ pin_compatible('numpy') }}
