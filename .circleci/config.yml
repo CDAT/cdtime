@@ -60,8 +60,9 @@ aliases:
        os=`uname`
        artifacts_dir="artifacts/artifacts.${os}.py_${PY_VER}"
        #make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/artifacts build_version=$PY_VER
-       echo "make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/artifacts_dir build_version=$PY_VER"
-       make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/artifacts_dir build_version=$PY_VER
+       echo "make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/$artifacts_dir build_version=$PY_VER"
+       make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/$artifacts_dir build_version=$PY_VER
+       ls -l artifacts
        ls -l $artifacts_dir
 
   - &setup_run_tests
