@@ -131,7 +131,7 @@ jobs:
          LAST_STABLE: << pipeline.parameters.last_stable >>
          ENV_NAME: << pipeline.parameters.env_name >>
          PY_VER: << parameters.py_ver >>
-         #OS: << parameters.os >>
+         OS_EX: << parameters.os >>
       steps:
          - checkout
          - attach_workspace:
