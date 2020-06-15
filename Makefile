@@ -65,12 +65,12 @@ conda-build:
 
 	python $(workdir)/$(build_script) -w $(workdir) -p $(pkg_name) --build_version $(build_version) \
 		--do_build --conda_env $(conda_env) --extra_channels $(extra_channels) \
-		--conda_activate $(conda_activate) $(conda_build_extra) \
-		--copy_conda_package $(artifact_dir)/
+		--conda_activate $(conda_activate) $(conda_build_extra)
 
 conda-upload:
-	source $(conda_activate) $(conda_env); \                                                                 
-		anaconda -t $(conda_upload_token) upload -u $(user) -l $(label) --force $(artifact_dir)/*/
+	source $(conda_activate) $(conda_env); \
+		output=$$(conda build --output $(workdir)/$(pkg_name)-feedstock); \
+		anaconda -t $(conda_upload_token) upload -u $(user) -l $(label) $${output} --force
 
 conda-dump-env:
 	mkdir -p $(artifact_dir)
