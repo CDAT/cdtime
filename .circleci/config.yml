@@ -130,8 +130,8 @@ jobs:
          REPO_NAME: << pipeline.parameters.repo_name >>
          LAST_STABLE: << pipeline.parameters.last_stable >>
          ENV_NAME: << pipeline.parameters.env_name >>
+         OS: << parameters.os >>
          PY_VER: << parameters.py_ver >>
-         OS_EX: << parameters.os >>
       steps:
          - checkout
          - attach_workspace:
