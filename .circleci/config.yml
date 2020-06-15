@@ -57,8 +57,8 @@ aliases:
        source $BASH_ENV
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       artifacts_dir="artifacts/artifacts.${OS}.py_${PY_VER}"
-       make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/artifacts_dir build_version=$PY_VER
+
+       make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/artifacts build_version=$PY_VER
 
   - &setup_run_tests
     name: setup_run_tests
@@ -86,10 +86,9 @@ aliases:
        source $BASH_ENV
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       ls -l $PWD/artifacts
-       # UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
-       # anaconda $UPLOAD_OPTIONS $WORKDIR/miniconda/conda-bld/*-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
-       # make conda-upload conda=$WORKDIR/miniconda/bin/conda conda_upload_token=$CONDA_UPLOAD_TOKEN user=$USER label=$LABEL artifact_dir=$PWD/artifacts
+
+       UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
+       anaconda $UPLOAD_OPTIONS $WORKDIR/miniconda/conda-bld/*-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
 
 executors:
    linux:
@@ -132,7 +131,6 @@ jobs:
          LAST_STABLE: << pipeline.parameters.last_stable >>
          ENV_NAME: << pipeline.parameters.env_name >>
          PY_VER: << parameters.py_ver >>
-         OS: << parameters.os >>
       steps:
          - checkout
          - attach_workspace:
@@ -148,11 +146,17 @@ jobs:
               root: .
               paths: 
                  - workdir/*/miniconda/conda-bld/*/cdtime*bz2
-                 - artifacts
+                 #- workdir/*/miniconda
 
    upload:
-      machine:
-         image: circleci/classic:latest
+      parameters:
+         os:
+            type: executor
+         py_ver:
+            type: string
+      executor: << parameters.os >>
+      #machine:
+      #   image: circleci/classic:latest
       environment:
          PKG_NAME: << pipeline.parameters.pkg_name >>
          VERSION: << pipeline.parameters.last_stable >>
@@ -185,8 +189,13 @@ workflows:
                  - rerender-<< matrix.os >>
 
          - upload:
+              matrix:
+                 parameters:
+                    os: [ linux, macos ]
+                    py_ver: [ "3.6", "3.7", "3.8" ]
+              name: upload-<< matrix.os >>-<< matrix.py_ver >>
               requires:
-                 - build_test
+                 - build_test-<< matrix.os >>-<< matrix.py_ver >>
 
 
 
