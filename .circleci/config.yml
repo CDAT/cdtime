@@ -131,6 +131,7 @@ jobs:
          LAST_STABLE: << pipeline.parameters.last_stable >>
          ENV_NAME: << pipeline.parameters.env_name >>
          PY_VER: << parameters.py_ver >>
+         OS: << parameters.os >>
       steps:
          - checkout
          - attach_workspace:
@@ -149,14 +150,8 @@ jobs:
                  #- workdir/*/miniconda
 
    upload:
-      parameters:
-         os:
-            type: executor
-         py_ver:
-            type: string
-      executor: << parameters.os >>
-      #machine:
-      #   image: circleci/classic:latest
+      machine:
+         image: circleci/classic:latest
       environment:
          PKG_NAME: << pipeline.parameters.pkg_name >>
          VERSION: << pipeline.parameters.last_stable >>
@@ -189,13 +184,6 @@ workflows:
                  - rerender-<< matrix.os >>
 
          - upload:
-              matrix:
-                 parameters:
-                    os: [ linux, macos ]
-                    py_ver: [ "3.6", "3.7", "3.8" ]
-              name: upload-<< matrix.os >>-<< matrix.py_ver >>
               requires:
-                 - build_test-<< matrix.os >>-<< matrix.py_ver >>
-
-
+                 - build_test
 
