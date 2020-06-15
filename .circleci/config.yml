@@ -89,8 +89,10 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
 
-       UPLOAD_OPTIONS="-t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
-       anaconda $UPLOAD_OPTIONS $WORKDIR/miniconda/conda-bld/*-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+       UPLOAD_OPTIONS="conda_upload_token=$CONDA_UPLOAD_TOKEN -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
+       #anaconda $UPLOAD_OPTIONS $WORKDIR/miniconda/conda-bld/*-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
+       ls -l $PWD/artifacts
+       make conda-upload conda=$WORKDIR/miniconda/bin/conda artifact_dir="$PWD/artifacts/*/"
 
 executors:
    linux:
@@ -149,6 +151,7 @@ jobs:
               paths: 
                  - workdir/*/miniconda/conda-bld/*/cdtime*bz2
                  #- workdir/*/miniconda
+                 - artifacts
 
    upload:
       machine:
