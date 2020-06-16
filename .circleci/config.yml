@@ -47,7 +47,6 @@ aliases:
        source $BASH_ENV
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       echo "make conda-rerender conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR last_stable=$LAST_STABLE branch=$CIRCLE_BRANCH"
        make conda-rerender conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR last_stable=$LAST_STABLE branch=$CIRCLE_BRANCH
        ([ $? -eq 0 ] && echo "success!") || echo "failure!"
 
@@ -57,17 +56,9 @@ aliases:
        source $BASH_ENV
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       #os=`uname`
-       #artifacts_dir="artifacts/artifacts.${os}.py_${PY_VER}"
-       artifacts_dir="artifacts/artifacts.${OS_NAME}.py_${PY_VER}"
-       #make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/artifacts build_version=$PY_VER
-       echo "make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/$artifacts_dir build_version=$PY_VER"
+       os=`uname`
+       artifacts_dir="artifacts/artifacts.${os}.py_${PY_VER}"
        make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/$artifacts_dir build_version=$PY_VER
-       pwd
-       ls
-       echo "....ls -l artifacts"
-       ls -l artifacts
-       ls -l $artifacts_dir
 
   - &setup_run_tests
     name: setup_run_tests
@@ -78,10 +69,9 @@ aliases:
        export CONDA_PY_VER="python=$PY_VER"
        os=`uname`
        artifacts_dir="artifacts/artifacts.${os}.py_${PY_VER}"
-       echo "make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs=\"$CONDA_PY_VER $COVERAGE_PKGS\""
        make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $COVERAGE_PKGS"
 
-       make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/$artifacts_dir conda_env_name=$CIRCLE_JOB
+       make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=spec_artifacts conda_env_filename=$CIRCLE_JOB
 
   - &run_tests
     name: run_tests
@@ -99,9 +89,6 @@ aliases:
        conda activate base
 
        UPLOAD_OPTIONS="conda_upload_token=$CONDA_UPLOAD_TOKEN user=$USER label=$LABEL"
-       #anaconda $UPLOAD_OPTIONS $WORKDIR/miniconda/conda-bld/*-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
-       ls -l $PWD/artifacts
-       echo "make conda-upload $UPLOAD_OPTIONS conda=$WORKDIR/miniconda/bin/conda artifact_dir=\"$PWD/artifacts/*/\""
        make conda-upload $UPLOAD_OPTIONS conda=$WORKDIR/miniconda/bin/conda artifact_dir="$PWD/artifacts/*/"
 
 executors:
@@ -145,7 +132,6 @@ jobs:
          LAST_STABLE: << pipeline.parameters.last_stable >>
          ENV_NAME: << pipeline.parameters.env_name >>
          PY_VER: << parameters.py_ver >>
-         OS_NAME: << parameters.os >>
       steps:
          - checkout
          - attach_workspace:
@@ -157,11 +143,13 @@ jobs:
          - store_artifacts:
               path: tests_html
               destination: tests_html
+         - store_artifacts:
+              path: spec_artifacts
+              destination: spec_artifacts
          - persist_to_workspace:
               root: .
               paths: 
                  - workdir/*/miniconda/conda-bld/*/cdtime*bz2
-                 #- workdir/*/miniconda
                  - artifacts
 
    upload:
