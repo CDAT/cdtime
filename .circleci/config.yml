@@ -75,10 +75,12 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        export CONDA_PY_VER="python=$PY_VER"
+       os=`uname`
+       artifacts_dir="artifacts/artifacts.${os}.py_${PY_VER}"
        echo "make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs=\"$CONDA_PY_VER $COVERAGE_PKGS\""
        make setup-tests conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME extra_pkgs="$CONDA_PY_VER $COVERAGE_PKGS"
 
-       make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/artifacts conda_env_name=$CIRCLE_JOB
+       make conda-dump-env conda=$WORKDIR/miniconda/bin/conda conda_env=$ENV_NAME artifact_dir=$PWD/$artifacts_dir conda_env_name=$CIRCLE_JOB
 
   - &run_tests
     name: run_tests
