@@ -57,8 +57,9 @@ aliases:
        source $BASH_ENV
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
-       os=`uname`
-       artifacts_dir="artifacts/artifacts.${os}.py_${PY_VER}"
+       #os=`uname`
+       #artifacts_dir="artifacts/artifacts.${os}.py_${PY_VER}"
+       artifacts_dir="artifacts/artifacts.${OS_NAME}.py_${PY_VER}"
        #make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/artifacts build_version=$PY_VER
        echo "make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/$artifacts_dir build_version=$PY_VER"
        make conda-build conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR artifact_dir=$PWD/$artifacts_dir build_version=$PY_VER
@@ -144,6 +145,7 @@ jobs:
          LAST_STABLE: << pipeline.parameters.last_stable >>
          ENV_NAME: << pipeline.parameters.env_name >>
          PY_VER: << parameters.py_ver >>
+         OS_NAME: << parameters.os >>
       steps:
          - checkout
          - attach_workspace:
