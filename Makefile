@@ -31,9 +31,7 @@ conda_recipes_branch ?= build_tool_update
 conda_base = $(patsubst %/bin/conda,%,$(conda))
 conda_activate = $(conda_base)/bin/activate
 
-ifdef $(artifact_dir)
 conda_build_extra = --copy_conda_package $(artifact_dir)/
-endif
 
 ifndef $(local_repo)
 local_repo = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
