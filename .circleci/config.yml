@@ -97,7 +97,7 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
 
-       UPLOAD_OPTIONS="conda_upload_token=$CONDA_UPLOAD_TOKEN -t $CONDA_UPLOAD_TOKEN upload -u $USER -l $LABEL"
+       UPLOAD_OPTIONS="conda_upload_token=$CONDA_UPLOAD_TOKEN user=$USER label=$LABEL"
        #anaconda $UPLOAD_OPTIONS $WORKDIR/miniconda/conda-bld/*-64/$PKG_NAME-$VERSION.`date +%Y*`0.tar.bz2 --force
        ls -l $PWD/artifacts
        echo "make conda-upload $UPLOAD_OPTIONS conda=$WORKDIR/miniconda/bin/conda artifact_dir=\"$PWD/artifacts/*/\""
