@@ -48,7 +48,6 @@ aliases:
        source $WORKDIR/miniconda/etc/profile.d/conda.sh
        conda activate base
        make conda-rerender conda=$WORKDIR/miniconda/bin/conda workdir=$WORKDIR last_stable=$LAST_STABLE branch=$CIRCLE_BRANCH
-       ([ $? -eq 0 ] && echo "success!") || echo "failure!"
 
   - &conda_build
     name: conda_build
@@ -168,7 +167,6 @@ jobs:
          - run: *conda_upload
 
 workflows:
-   version: 2.1
    cdtime:
       jobs:
          - rerender:

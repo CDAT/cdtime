@@ -1,5 +1,5 @@
 .PHONY: conda-info conda-list setup-build setup-tests conda-rerender \
-	conda-build conda-upload conda-dump-env conda-cp-output get_testdata \
+	conda-build conda-upload conda-dump-env \
 	run-tests run-coveralls
 
 SHELL = /bin/bash
@@ -25,7 +25,6 @@ coverage = -c tests/coverage.json --coverage-from-egg
 endif
 
 # TODO change back to master
-#conda_recipes_branch ?= build_tool_update.2
 conda_recipes_branch ?= build_tool_update
 
 conda_base = $(patsubst %/bin/conda,%,$(conda))
@@ -52,7 +51,8 @@ endif
 
 setup-tests:
 	source $(conda_activate) base; conda create -y -n $(conda_env) --use-local \
-		$(foreach x,$(extra_channels),-c $(x)) $(pkg_name) $(foreach x,$(test_pkgs),"$(x)") $(foreach x,$(extra_pkgs),"$(x)")
+		$(foreach x,$(extra_channels),-c $(x)) $(pkg_name) $(foreach x,$(test_pkgs),"$(x)") \
+		$(foreach x,$(extra_pkgs),"$(x)")
 
 conda-rerender: setup-build 
 	python $(workdir)/$(build_script) -w $(workdir) -l $(last_stable) -B 0 -p $(pkg_name) \
