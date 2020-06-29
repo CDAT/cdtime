@@ -185,3 +185,6 @@ workflows:
          - upload:
               requires:
                  - build_test
+              filters:
+                 branches:
+                    only: master
