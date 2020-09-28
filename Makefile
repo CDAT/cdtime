@@ -29,10 +29,9 @@ endif
 
 conda_recipes_branch ?= master
 
-conda ?= $(or $(CONDA_EXE),$(shell find /opt/*conda*/bin $(HOME)/*conda*/bin -type f -iname conda))
-conda_bin := $(patsubst %/conda,%,$(conda))
-conda_act := $(conda_bin)/activate
-conda_act_cmd := source $(conda_act)
+conda ?= $(or $(CONDA_EXE),$(shell find /opt/*conda*/bin $(HOME)/*conda* -type f -iname conda))
+conda_base = $(patsubst %/bin/conda,%,$(conda))
+conda_activate = $(conda_base)/bin/activate
 
 
 conda_build_extra = --copy_conda_package $(artifact_dir)/
