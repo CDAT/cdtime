@@ -23,6 +23,6 @@ jobs:
         days-before-close: 7
         stale-issue-label: 'stale'
         # Set to a list of labels that will be exempt from being marked as stale e.g. work-in-progress,kind/bug, etc.
-        exempt-issue-label: bug
+        exempt-issue-label: 'kind/bug,kind/package,kind/feature'
         stale-pr-label: 'stale'
         debug-only: false # Setting to true will enable dry-run
