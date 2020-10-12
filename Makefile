@@ -6,16 +6,19 @@ SHELL = /bin/bash
 
 os = $(shell uname)
 pkg_name = cdtime
+
+user ?= cdat
+label ?= nightly
+
 build_script = conda-recipes/build_tools/conda_build.py
 
 test_pkgs = numpy cdat_info libcdms libdrs_f testsrunner
-last_stable ?= 3.1.2
+last_stable ?= 3.1.4
 
-conda_env ?= base
+conda_env ?= test_cdtime
 workdir ?= $(PWD)/workspace
 branch ?= $(shell git rev-parse --abbrev-ref HEAD)
 extra_channels ?= cdat/label/nightly conda-forge
-conda ?= $(or $(CONDA_EXE),$(shell find /opt/*conda*/bin $(HOME)/*conda* -type f -iname conda))
 artifact_dir ?= $(PWD)/artifacts
 conda_env_filename ?= spec-file
 build_version ?= 3.7
@@ -26,8 +29,10 @@ endif
 
 conda_recipes_branch ?= master
 
+conda ?= $(or $(CONDA_EXE),$(shell find /opt/*conda*/bin $(HOME)/*conda* -type f -iname conda))
 conda_base = $(patsubst %/bin/conda,%,$(conda))
 conda_activate = $(conda_base)/bin/activate
+
 
 conda_build_extra = --copy_conda_package $(artifact_dir)/
 
