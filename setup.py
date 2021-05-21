@@ -23,11 +23,12 @@ setup(name="cdtime",
       packages=['cdtime'],
       package_dir={'cdtime': 'Lib'},
       include_dirs=['Include', 'Include/py3c'] + cdat_info.cdunif_include_directories,
-      ext_modules=[Extension('cdtime._cdtime',
-                             ['Src/cdtimemodule.c'],
-                             library_dirs=cdat_info.cdunif_library_directories,
-                             libraries=cdat_info.cdunif_libraries,
-                             runtime_library_dirs=[libs_pth],
-                             extra_compile_args=["-L%s" % libs_pth, "-g", "-O0"],)
-                   ]
-      )
+      ext_modules=[
+          Extension(
+              'cdtime._cdtime',
+              ['Src/cdtimemodule.c'],
+              include_dirs=[sys.prefix+'/include'],
+              library_dirs=[sys.prefix+'/lib'],
+              libraries=['cdms', 'netcdf', 'grib2c', 'drs', 'png', 'jasper'],
+        )
+      ])
